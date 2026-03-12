@@ -25,7 +25,7 @@ Synap is a todo app built around the idea that simply _listing_ tasks isn't enou
 - **Styling** — Tailwind CSS v4
 - **Auth** — [NextAuth v5 (Auth.js)](https://authjs.dev) — Google, GitHub, Email/Password, Magic Link
 - **ORM** — [Prisma 7](https://prisma.io)
-- **Database** — PostgreSQL via [Supabase](https://supabase.com)
+- **Database** — PostgreSQL via [Neon](https://neon.tech)
 
 ---
 
@@ -72,8 +72,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Variable | Description |
 |---|---|
-| `DATABASE_URL` | Supabase PostgreSQL connection string (via PgBouncer, port 6543) |
-| `DIRECT_URL` | Direct Supabase connection (port 5432) used for migrations |
+| `DATABASE_URL` | Neon pooler connection string (add `pgbouncer=true`) |
+| `DIRECT_URL` | Neon direct connection string (no pooler — used for migrations) |
 | `AUTH_SECRET` | Random secret for NextAuth (`openssl rand -base64 32`) |
 | `NEXTAUTH_URL` | Full URL of your app (e.g. `http://localhost:3000`) |
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID |

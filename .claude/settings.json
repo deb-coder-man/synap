@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Neon__list_projects",
+      "mcp__Neon__get_connection_string",
+      "Bash(npm run:*)"
+    ]
+  }
+}
