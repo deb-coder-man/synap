@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(gh --version)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git --use-npm)",
+      "Read(//Users/davesmachine/Documents/Coding/Projects/**)",
+      "Bash(npx create-next-app@latest synap-temp --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git --use-npm)",
+      "Bash(printf '\\\\n')",
+      "Bash(rsync -a --exclude='.git' synap-temp/ Synap/)",
+      "Bash(rm -rf synap-temp)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma:*)"
+    ]
+  }
+}
