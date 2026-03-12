@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
 }
 
 // ─── NextAuth Required Models ─────────────────────────────────────────────────
@@ -21,13 +21,12 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
+  accounts Account[]
+  sessions Session[]
 
   // App relations
-  boards        Board[]
-  archivedCards ArchivedCard[]
-  settings      UserSettings?
+  lists    List[]
+  settings UserSettings?
 }
 
 model Account {
@@ -70,72 +69,40 @@ model VerificationToken {
 
 // ─── App Models ───────────────────────────────────────────────────────────────
 
-model Board {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  lists List[]
-}
-
 model List {
   id        String   @id @default(cuid())
   name      String
+  colour    String
   order     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  boardId String
-  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  cards Card[]
+  tasks Task[]
 }
 
-model Card {
-  id               String    @id @default(cuid())
-  title            String
-  description      String?
-  order            Int       @default(0)
+model Task {
+  id             String    @id @default(cuid())
+  title          String
+  description    String?
+  estimatedHours Float?
+  dueDate        DateTime?
+  order          Int       @default(0)
   // Eisenhower matrix axes
-  urgent           Boolean   @default(false)
-  important        Boolean   @default(false)
-  // Action page fields
-  estimatedHours   Float?
-  requiresDeepWork Boolean   @default(false)
-  // Scheduling
-  dueDate          DateTime?
+  urgent         Boolean   @default(false)
+  important      Boolean   @default(false)
   // Completion
-  completed        Boolean   @default(false)
-  completedAt      DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  completed      Boolean   @default(false)
+  completedAt    DateTime?
+  // Archive
+  archived       Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   listId String
   list   List   @relation(fields: [listId], references: [id], onDelete: Cascade)
-}
-
-model ArchivedCard {
-  id                String    @id @default(cuid())
-  title             String
-  description       String?
-  urgent            Boolean
-  important         Boolean
-  estimatedHours    Float?
-  requiresDeepWork  Boolean
-  dueDate           DateTime?
-  completedAt       DateTime?
-  archivedAt        DateTime  @default(now())
-  originalListName  String
-  originalBoardName String
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // ─── User Settings (Customisation) ────────────────────────────────────────────
