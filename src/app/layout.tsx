@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Delius } from "next/font/google";
+import Providers from "@/app/components/Providers";
 import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+});
+
+const delius = Delius({
+  variable: "--font-delius",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -20,8 +27,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans antialiased`}>
-        {children}
+      <body className={`${inter.variable} ${delius.variable} font-sans antialiased`}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

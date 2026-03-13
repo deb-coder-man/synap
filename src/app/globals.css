@@ -1,26 +1,61 @@
 @import "tailwindcss";
 
+/* ─── Synap Design Tokens ────────────────────────────────────────────────────
+   Source of truth: Figma file "Synap" (node 1:2)
+   All raw values live here as CSS custom properties so they can be
+   overridden at runtime by UserSettings (background, text, font).
+   Tailwind v4 @theme maps them to utility classes automatically.
+─────────────────────────────────────────────────────────────────────────── */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core brand colours (also exposed as Figma variables) */
+  --background:    #f6f0e6;   /* warm cream — page/card backgrounds    */
+  --foreground:    #1f1a17;   /* dark brown-black — text, sidebar, nav  */
+
+  /* Priority badge colours */
+  --priority-low:    #5ec27d; /* green  */
+  --priority-medium: #f2b84b; /* amber  */
+  --priority-high:   #e45b4f; /* red    */
+
+  /* List / column accent colours (pre-defined palette users can pick from) */
+  --list-rust:   #a65a4c;     /* terracotta  */
+  --list-blue:   #5f7c95;     /* slate blue  */
+  --list-purple: #8b6f8f;     /* muted purple */
+  --list-green:  #6f8f6a;     /* sage green  */
+
+  /* Typography */
+  --font-sans: "Inter", sans-serif;
+  --font-delius: "Delius", cursive;
 }
+
+/* ─── Tailwind v4 Theme Registration ─────────────────────────────────────── */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Maps CSS variables → Tailwind utility classes
+     e.g. bg-background, text-foreground, bg-priority-low, text-list-rust … */
+
+  --color-background:    var(--background);
+  --color-foreground:    var(--foreground);
+
+  --color-priority-low:    var(--priority-low);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-high:   var(--priority-high);
+
+  --color-list-rust:   var(--list-rust);
+  --color-list-blue:   var(--list-blue);
+  --color-list-purple: var(--list-purple);
+  --color-list-green:  var(--list-green);
+
+  --font-sans: var(--font-sans);
+  --font-delius: var(--font-delius);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ─── Base Styles ─────────────────────────────────────────────────────────── */
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
+
+
