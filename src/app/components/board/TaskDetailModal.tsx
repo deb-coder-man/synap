@@ -53,27 +53,27 @@ export default function TaskDetailModal({ task, listName, open, onClose }: Props
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent showCloseButton={false} className="w-[1000px] max-w-[1000px] sm:max-w-[850px] rounded-xl border-none bg-background p-0 shadow-2xl overflow-hidden">
+      <DialogContent showCloseButton={false} className="w-full sm:max-w-[850px] max-h-[90vh] rounded-xl border-none bg-background p-0 shadow-2xl overflow-hidden flex flex-col">
         <DialogTitle className="sr-only">{task.title}</DialogTitle>
 
-        <div className="flex flex-col gap-0">
+        <div className="flex flex-col gap-0 overflow-hidden flex-1 min-h-0">
           {/* Header: list name + close */}
-          <div className="flex items-center justify-between border-b border-foreground/10 px-8 py-5">
-            <span className="font-[family-name:var(--font-delius)] text-2xl font-bold text-foreground">
+          <div className="flex shrink-0 items-center justify-between border-b border-foreground/10 px-4 py-4 sm:px-8 sm:py-5">
+            <span className="font-[family-name:var(--font-delius)] text-xl font-bold text-foreground sm:text-2xl">
               {listName}
             </span>
             <button onClick={onClose} className="text-foreground/60 hover:text-foreground">
-              <X size={28} />
+              <X size={24} />
             </button>
           </div>
 
-          <div className="flex flex-col gap-6 px-8 py-6">
+          <div className="flex flex-col gap-5 overflow-y-auto px-4 py-5 sm:gap-6 sm:px-8 sm:py-6">
             {/* Task title — click to edit, save on blur */}
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onBlur={() => title.trim() && title !== task.title && save({ title: title.trim() })}
-              className="w-full border-0 border-b border-foreground/20 bg-transparent font-[family-name:var(--font-delius)] text-5xl text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/60"
+              className="w-full border-0 border-b border-foreground/20 bg-transparent font-[family-name:var(--font-delius)] text-3xl text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/60 sm:text-5xl"
             />
 
             {/* Priority buttons */}

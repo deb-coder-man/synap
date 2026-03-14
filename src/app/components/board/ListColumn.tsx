@@ -50,15 +50,15 @@ export default function ListColumn({ list }: Props) {
       <div
         ref={setNodeRef}
         style={{ ...columnStyle, backgroundColor: list.colour }}
-        className="flex w-[328px] shrink-0 flex-col gap-[13px] rounded-[15px] px-[23px] py-[19px]"
+        className="flex w-[calc(100vw-3rem)] shrink-0 snap-center flex-col gap-[13px] rounded-[10px] px-[15px] py-[17px] sm:w-[300px] sm:snap-start"
       >
         {/* Column header — drag handle */}
         <div
           {...attributes}
           {...listeners}
-          className="flex cursor-grab items-center justify-between px-[6px] py-[3px] active:cursor-grabbing"
+          className="flex cursor-grab items-center justify-between active:cursor-grabbing"
         >
-          <p className="font-[family-name:var(--font-delius)] text-[32px] text-background">
+          <p className="font-[family-name:var(--font-delius)] text-[20px] text-background">
             {list.name}
           </p>
           <ListOptionsMenu list={list} onEditList={() => setEditListOpen(true)} />
