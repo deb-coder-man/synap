@@ -1,6 +1,8 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Header from "@/app/components/Header";
+import PomodoroTicker from "@/app/components/action/PomodoroTicker";
+import Footer from "@/app/components/Footer";
 
 export default async function DashboardLayout({
   children,
@@ -11,15 +13,17 @@ export default async function DashboardLayout({
   if (!session) redirect("/login");
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <main className="flex-1">
-        
+    <>
+      <div className="flex min-h-screen bg-background">
+        <main className="flex-1">
           <Header />
-        <div className="relative pt-[90px] pb-[76px] sm:pt-[75px] sm:pb-0">
-          {children}
-        </div>
-
-      </main>
-    </div>
+          <PomodoroTicker />
+          <div className="relative pt-[90px] pb-[76px] sm:pt-[75px] sm:pb-[52px]">
+            {children}
+          </div>
+        </main>
+      </div>
+      <Footer className="hidden sm:flex" />
+    </>
   );
 }

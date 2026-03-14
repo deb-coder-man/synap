@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useRef, useState } from "react";
 import { Play, Pause, RotateCcw, SkipForward } from "lucide-react";
 import { useActionStore, type PomodoroMode } from "@/app/stores/actionStore";
 
@@ -26,72 +26,12 @@ export default function PomodoroTimer() {
     setPomodoroMode,
     setPomodoroRemaining,
     setPomodoroTotal,
-    setPomodoroCount,
     setPomodoroRunning,
   } = useActionStore();
 
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState("");
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // ─── Auto-advance when timer reaches 0 ──────────────────────────────────
-  const advance = useCallback(
-    (currentMode: PomodoroMode, currentCount: number) => {
-      if (currentMode === "work") {
-        const newCount = currentCount + 1;
-        setPomodoroCount(newCount);
-        const nextMode: PomodoroMode = newCount % 4 === 0 ? "long" : "short";
-        const secs = DEFAULT_SECONDS[nextMode];
-        setPomodoroMode(nextMode);
-        setPomodoroTotal(secs);
-        setPomodoroRemaining(secs);
-        setPomodoroRunning(true); // auto-start the break
-      } else {
-        // Break finished → back to focus
-        const secs = DEFAULT_SECONDS.work;
-        setPomodoroMode("work");
-        setPomodoroTotal(secs);
-        setPomodoroRemaining(secs);
-        setPomodoroRunning(true); // auto-start the next focus
-      }
-    },
-    [setPomodoroCount, setPomodoroMode, setPomodoroRemaining, setPomodoroRunning, setPomodoroTotal]
-  );
-
-  const clearTimer = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  }, []);
-
-  // Keep refs so the interval closure always sees the latest values
-  const modeRef = useRef(mode);
-  const countRef = useRef(count);
-  const remainingRef = useRef(remaining);
-  modeRef.current = mode;
-  countRef.current = count;
-  remainingRef.current = remaining;
-
-  useEffect(() => {
-    if (running) {
-      intervalRef.current = setInterval(() => {
-        const next = remainingRef.current - 1;
-        if (next <= 0) {
-          clearTimer();
-          setPomodoroRemaining(0);
-          setPomodoroRunning(false);
-          setTimeout(() => advance(modeRef.current, countRef.current), 0);
-        } else {
-          setPomodoroRemaining(next);
-        }
-      }, 1000);
-    } else {
-      clearTimer();
-    }
-    return clearTimer;
-  }, [running, clearTimer, setPomodoroRemaining, setPomodoroRunning, advance]);
 
   function switchMode(m: PomodoroMode) {
     setPomodoroRunning(false);
@@ -107,9 +47,8 @@ export default function PomodoroTimer() {
   }
 
   function handleSkip() {
-    setPomodoroRunning(false);
-    clearTimer();
-    advance(mode, count);
+    // Delegate to the ticker's advance logic by resetting to 0 and letting ticker handle it
+    setPomodoroRemaining(0);
   }
 
   function handleTimeClick() {
@@ -143,7 +82,7 @@ export default function PomodoroTimer() {
   const dash = C * progress;
 
   // 4-circle progress indicator (position within current cycle of 4)
-  const cyclePosition = count % 4; // how many focus sessions done in current cycle
+  const cyclePosition = count % 4;
 
   return (
     <div className="flex flex-col items-center gap-5">
