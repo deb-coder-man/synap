@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Delius, Geist } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import Providers from "@/app/components/Providers";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,7 @@ export default function RootLayout({
     <html lang="en" className={cn("font-sans", geist.variable)}>
       <body className={`${inter.variable} ${delius.variable} font-sans antialiased`}>
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );

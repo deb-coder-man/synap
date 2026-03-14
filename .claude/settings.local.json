@@ -15,5 +15,9 @@
       "mcp__figma-desktop__get_design_context",
       "mcp__figma-desktop__get_screenshot"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "shadcn"
+  ],
+  "enableAllProjectMcpServers": true
 }
