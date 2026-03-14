@@ -34,11 +34,19 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 
   try {
     const body = await request.json();
-    const { name, colour, order } = body;
+    const { name, colour, order, archiveAllTasks } = body;
 
     // Verify ownership before updating
     const existing = await prisma.list.findFirst({ where: { id, userId } });
     if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    // Bulk archive all non-archived tasks in this list
+    if (archiveAllTasks) {
+      await prisma.task.updateMany({
+        where: { listId: id, archived: false },
+        data: { archived: true, completed: true, completedAt: new Date() },
+      });
+    }
 
     const updated = await prisma.list.update({
       where: { id },
@@ -46,6 +54,12 @@ export async function PATCH(request: NextRequest, { params }: Params) {
         ...(name !== undefined && { name }),
         ...(colour !== undefined && { colour }),
         ...(order !== undefined && { order }),
+      },
+      include: {
+        tasks: {
+          where: { archived: false },
+          orderBy: [{ completed: "asc" }, { order: "asc" }],
+        },
       },
     });
     return NextResponse.json(updated);

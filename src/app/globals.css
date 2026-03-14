@@ -28,8 +28,9 @@
   /* Typography */
   --font-sans: "Inter", sans-serif;
   --font-delius: "Delius", cursive;
-  --background:    oklch(1 0 0);
-  --foreground:    oklch(0.145 0 0);
+  /* Synap brand colours (override shadcn defaults) */
+  --background:    #f6f0e6;   /* warm cream */
+  --foreground:    #1f1a17;   /* dark brown-black */
   --card:    oklch(1 0 0);
   --card-foreground:    oklch(0.145 0 0);
   --popover:    oklch(1 0 0);

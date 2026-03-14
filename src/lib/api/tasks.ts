@@ -3,11 +3,17 @@ import type { Task, CreateTaskInput, UpdateTaskInput } from "@/lib/types";
 const BASE = "/api/tasks";
 
 // ─── GET all tasks for the current user ───────────────────────────────────────
-// Pass a listId to filter to a specific list.
 export async function getTasks(listId?: string): Promise<Task[]> {
   const url = listId ? `${BASE}?listId=${listId}` : BASE;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch tasks");
+  return res.json();
+}
+
+// ─── GET archived tasks ───────────────────────────────────────────────────────
+export async function getArchivedTasks(): Promise<Task[]> {
+  const res = await fetch(`${BASE}?archived=true`);
+  if (!res.ok) throw new Error("Failed to fetch archived tasks");
   return res.json();
 }
 
@@ -30,10 +36,7 @@ export async function createTask(data: CreateTaskInput): Promise<Task> {
 }
 
 // ─── PATCH — update an existing task ─────────────────────────────────────────
-export async function updateTask(
-  id: string,
-  data: UpdateTaskInput
-): Promise<Task> {
+export async function updateTask(id: string, data: UpdateTaskInput): Promise<Task> {
   const res = await fetch(`${BASE}/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -43,15 +46,8 @@ export async function updateTask(
   return res.json();
 }
 
-// ─── DELETE — try this one yourself! ─────────────────────────────────────────
-// Hint: send a DELETE request to `${BASE}/${id}`. A 204 means success.
-// export async function deleteTask(id: string): Promise<void> {
-//   ...
-// }
-export async function deleteTask(
-  id: string
-) : Promise<void> {
-  const res = await fetch(`${BASE}/${id}`);
+// ─── DELETE — permanently remove a task ──────────────────────────────────────
+export async function deleteTask(id: string): Promise<void> {
+  const res = await fetch(`${BASE}/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error(`Failed to delete task ${id}`);
-  return res.json();
 }

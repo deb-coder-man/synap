@@ -1,21 +1,210 @@
-import { auth } from "@/auth";
+"use client";
 
-export default async function BoardPage() {
-  const session = await auth();
+import { useState } from "react";
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCorners,
+  type DragStartEvent,
+  type DragOverEvent,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { Plus } from "lucide-react";
+import { useLists, useUpdateList, listKeys } from "@/app/hooks/useLists";
+import { useUpdateTask } from "@/app/hooks/useTasks";
+import { useQueryClient } from "@tanstack/react-query";
+import ListColumn from "@/app/components/board/ListColumn";
+import TaskCard from "@/app/components/board/TaskCard";
+import CreateListModal from "@/app/components/board/CreateListModal";
+import type { List, Task } from "@/lib/types";
+
+type ListWithTasks = List & { tasks: Task[] };
+
+export default function BoardPage() {
+  const { data: rawLists = [], isLoading } = useLists();
+  const lists = rawLists as ListWithTasks[];
+
+  const { mutate: updateList } = useUpdateList();
+  const { mutate: updateTask } = useUpdateTask();
+  const queryClient = useQueryClient();
+
+  const [createListOpen, setCreateListOpen] = useState(false);
+  const [activeList, setActiveList] = useState<ListWithTasks | null>(null);
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  );
+
+  const listIds = lists.map((l) => l.id);
+
+  // ─── Drag handlers ─────────────────────────────────────────────────────────
+
+  function onDragStart(event: DragStartEvent) {
+    const data = event.active.data.current;
+    if (data?.type === "list") {
+      setActiveList(lists.find((l) => l.id === event.active.id) ?? null);
+    }
+    if (data?.type === "task") {
+      setActiveTask(data.task as Task);
+    }
+  }
+
+  function onDragOver(event: DragOverEvent) {
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeData = active.data.current;
+    const overData   = over.data.current;
+
+    // Task dragged over a different list column — optimistically move it
+    if (activeData?.type === "task" && overData?.type === "list") {
+      const task = activeData.task as Task;
+      if (task.listId !== over.id) {
+        queryClient.setQueryData(listKeys.all, (old: ListWithTasks[]) =>
+          old?.map((list) => {
+            if (list.id === task.listId) {
+              return { ...list, tasks: list.tasks.filter((t) => t.id !== task.id) };
+            }
+            if (list.id === over.id) {
+              return { ...list, tasks: [...list.tasks, { ...task, listId: String(over.id) }] };
+            }
+            return list;
+          })
+        );
+        setActiveTask((t) => (t ? { ...t, listId: String(over.id) } : t));
+      }
+    }
+  }
+
+  function onDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    setActiveList(null);
+    setActiveTask(null);
+
+    if (!over) return;
+
+    const activeData = active.data.current;
+    const overData   = over.data.current;
+
+    // ── Reorder lists ──────────────────────────────────────────────────────
+    if (
+      activeData?.type === "list" &&
+      overData?.type === "list" &&
+      active.id !== over.id
+    ) {
+      const oldIndex  = lists.findIndex((l) => l.id === active.id);
+      const newIndex  = lists.findIndex((l) => l.id === over.id);
+      const reordered = arrayMove(lists, oldIndex, newIndex);
+
+      queryClient.setQueryData(
+        listKeys.all,
+        reordered.map((l, i) => ({ ...l, order: i }))
+      );
+      reordered.forEach((list, i) => {
+        if (list.order !== i) updateList({ id: list.id, data: { order: i } });
+      });
+      return;
+    }
+
+    // ── Move/reorder tasks ──────────────────────────────────────────────────
+    if (activeData?.type === "task") {
+      const movedTask    = activeData.task as Task;
+      const targetListId =
+        overData?.type === "list"
+          ? String(over.id)
+          : (overData?.task as Task | undefined)?.listId ?? movedTask.listId;
+
+      const targetList = lists.find((l) => l.id === targetListId);
+      if (!targetList) return;
+
+      const tasks        = targetList.tasks;
+      const overTaskId   = overData?.type === "task" ? String(over.id) : null;
+      const overIndex    = overTaskId ? tasks.findIndex((t) => t.id === overTaskId) : tasks.length;
+      const activeIndex  = tasks.findIndex((t) => t.id === movedTask.id);
+
+      const newTasks: Task[] =
+        activeIndex !== -1
+          ? arrayMove(tasks, activeIndex, overIndex)
+          : [
+              ...tasks.slice(0, overIndex),
+              { ...movedTask, listId: targetListId },
+              ...tasks.slice(overIndex),
+            ];
+
+      queryClient.setQueryData(
+        listKeys.all,
+        lists.map((l) =>
+          l.id === targetListId ? { ...l, tasks: newTasks } : l.id === movedTask.listId ? { ...l, tasks: l.tasks.filter((t) => t.id !== movedTask.id) } : l
+        )
+      );
+
+      newTasks.forEach((task, i) => {
+        if (task.order !== i || task.listId !== targetListId) {
+          updateTask({ id: task.id, data: { order: i, listId: targetListId } });
+        }
+      });
+    }
+  }
+
+  // ─── Render ────────────────────────────────────────────────────────────────
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <p className="font-[family-name:var(--font-delius)] text-foreground/50">Loading…</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Board</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Manage your tasks in lists
-        </p>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCorners}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragEnd={onDragEnd}
+    >
+      <div className="flex min-h-[calc(100vh-120px)] items-start gap-[46px] overflow-x-auto px-6 pb-8">
+        <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
+          {lists.map((list) => (
+            <ListColumn key={list.id} list={list} />
+          ))}
+        </SortableContext>
+
+        {/* Add a List */}
+        <button
+          onClick={() => setCreateListOpen(true)}
+          className="flex w-[328px] shrink-0 items-center justify-between rounded-[15px] bg-foreground px-[23px] py-[19px] font-[family-name:var(--font-delius)] text-[20px] text-background hover:opacity-80"
+        >
+          <span>Add a List</span>
+          <Plus size={28} />
+        </button>
       </div>
 
-      {/* Board content will go here */}
-      <div className="flex items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white py-24 text-sm text-gray-400">
-        Board coming soon
-      </div>
-    </div>
+      {/* Drag overlays */}
+      <DragOverlay>
+        {activeList && <ListColumn list={activeList} />}
+        {activeTask && (
+          <div className="w-[280px] rounded-lg bg-background shadow-xl opacity-90">
+            <TaskCard task={activeTask} listColour="#f6f0e6" onOpen={() => {}} />
+          </div>
+        )}
+      </DragOverlay>
+
+      <CreateListModal
+        open={createListOpen}
+        onClose={() => setCreateListOpen(false)}
+        nextOrder={lists.length}
+      />
+    </DndContext>
   );
 }

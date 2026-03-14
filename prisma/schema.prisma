@@ -67,6 +67,14 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
 // ─── App Models ───────────────────────────────────────────────────────────────
 
 model List {
@@ -90,6 +98,8 @@ model Task {
   estimatedHours Float?
   dueDate        DateTime?
   order          Int       @default(0)
+  // Priority badge (Low / Medium / High — shown on the board card)
+  priority       Priority  @default(LOW)
   // Eisenhower matrix axes
   urgent         Boolean   @default(false)
   important      Boolean   @default(false)
