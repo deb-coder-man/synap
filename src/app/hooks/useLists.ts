@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getLists, getList, createList, updateList, deleteList } from "@/lib/api/lists";
+import { taskKeys } from "@/app/hooks/useTasks";
 import type { CreateListInput, UpdateListInput } from "@/lib/types";
 
 // Query key factory — keeps cache keys consistent across the app
@@ -48,6 +49,8 @@ export function useUpdateList() {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: listKeys.all });
       queryClient.invalidateQueries({ queryKey: listKeys.detail(id) });
+      // archiveAllTasks changes archived tasks — refresh the archive page cache
+      queryClient.invalidateQueries({ queryKey: taskKeys.archived });
     },
   });
 }

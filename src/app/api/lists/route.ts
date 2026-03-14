@@ -12,6 +12,12 @@ export async function GET() {
     const lists = await prisma.list.findMany({
       where: { userId },
       orderBy: { order: "asc" },
+      include: {
+        tasks: {
+          where: { archived: false },
+          orderBy: [{ completed: "asc" }, { order: "asc" }],
+        },
+      },
     });
     return NextResponse.json(lists);
   } catch {

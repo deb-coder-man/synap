@@ -14,6 +14,9 @@ datasource db {
 model User {
   id            String    @id @default(cuid())
   name          String?
+  firstName     String?
+  lastName      String?
+  username      String?   @unique
   email         String    @unique
   emailVerified DateTime?
   image         String?
@@ -67,6 +70,14 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
 // ─── App Models ───────────────────────────────────────────────────────────────
 
 model List {
@@ -90,6 +101,8 @@ model Task {
   estimatedHours Float?
   dueDate        DateTime?
   order          Int       @default(0)
+  // Priority badge (Low / Medium / High — shown on the board card)
+  priority       Priority  @default(LOW)
   // Eisenhower matrix axes
   urgent         Boolean   @default(false)
   important      Boolean   @default(false)
@@ -108,12 +121,15 @@ model Task {
 // ─── User Settings (Customisation) ────────────────────────────────────────────
 
 model UserSettings {
-  id              String   @id @default(cuid())
-  backgroundColor String   @default("#ffffff")
-  textColor       String   @default("#111111")
-  fontFamily      String   @default("Inter")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                    String   @id @default(cuid())
+  backgroundColor       String   @default("#ffffff")
+  textColor             String   @default("#111111")
+  fontFamily            String   @default("Inter")
+  pomodoroFocusDuration Int      @default(25)
+  pomodoroShortBreak    Int      @default(5)
+  pomodoroLongBreak     Int      @default(15)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
   userId String       @unique
   user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)

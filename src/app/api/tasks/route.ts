@@ -10,12 +10,15 @@ export async function GET(request: NextRequest) {
   const { userId } = auth;
 
   const listId = request.nextUrl.searchParams.get("listId") ?? undefined;
+  const archivedParam = request.nextUrl.searchParams.get("archived");
 
   try {
     const tasks = await prisma.task.findMany({
       where: {
         list: { userId },
         ...(listId && { listId }),
+        ...(archivedParam === "true" && { archived: true }),
+        ...(archivedParam === "false" && { archived: false }),
       },
       orderBy: { order: "asc" },
     });
@@ -40,6 +43,7 @@ export async function POST(request: NextRequest) {
       estimatedHours,
       dueDate,
       order,
+      priority,
       urgent,
       important,
     } = body;
@@ -65,6 +69,7 @@ export async function POST(request: NextRequest) {
         estimatedHours,
         dueDate: dueDate ? new Date(dueDate) : undefined,
         order: order ?? 0,
+        priority: priority ?? "LOW",
         urgent: urgent ?? false,
         important: important ?? false,
       },

@@ -28,21 +28,21 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { backgroundColor, textColor, fontFamily } = body;
+    const { backgroundColor, textColor, fontFamily, pomodoroFocusDuration, pomodoroShortBreak, pomodoroLongBreak } = body;
+
+    const patch = {
+      ...(backgroundColor        !== undefined && { backgroundColor        }),
+      ...(textColor              !== undefined && { textColor              }),
+      ...(fontFamily             !== undefined && { fontFamily             }),
+      ...(pomodoroFocusDuration  !== undefined && { pomodoroFocusDuration  }),
+      ...(pomodoroShortBreak     !== undefined && { pomodoroShortBreak     }),
+      ...(pomodoroLongBreak      !== undefined && { pomodoroLongBreak      }),
+    };
 
     const settings = await prisma.userSettings.upsert({
       where: { userId },
-      create: {
-        userId,
-        ...(backgroundColor !== undefined && { backgroundColor }),
-        ...(textColor !== undefined && { textColor }),
-        ...(fontFamily !== undefined && { fontFamily }),
-      },
-      update: {
-        ...(backgroundColor !== undefined && { backgroundColor }),
-        ...(textColor !== undefined && { textColor }),
-        ...(fontFamily !== undefined && { fontFamily }),
-      },
+      create: { userId, ...patch },
+      update: patch,
     });
     return NextResponse.json(settings);
   } catch {
