@@ -50,20 +50,17 @@ export default function LoginEmailForm() {
   return (
     <div>
       {/* Tabs */}
-      <div
-        className="mb-4 flex rounded-xl p-1"
-        style={{ backgroundColor: "#1f1a17", opacity: 1 }}
-      >
+      <div className="mb-4 flex rounded-xl bg-[#1f1a17] p-1">
         {(["password", "magic"] as Tab[]).map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => { setTab(t); setError(""); setSent(false); }}
-            className="flex-1 rounded-lg py-2 font-[family-name:var(--font-delius)] text-sm transition-colors cursor-pointer"
-            style={{
-              backgroundColor: tab === t ? "#f6f0e6" : "transparent",
-              color: tab === t ? "#1f1a17" : "#f6f0e6cc",
-            }}
+            className={`flex-1 rounded-lg py-2 font-[family-name:var(--font-delius)] text-sm transition-colors cursor-pointer ${
+              tab === t
+                ? "bg-[#f6f0e6] text-[#1f1a17]"
+                : "bg-transparent text-[#f6f0e6]/80 hover:text-[#f6f0e6]"
+            }`}
           >
             {t === "password" ? "Password" : "Magic link"}
           </button>
@@ -71,10 +68,7 @@ export default function LoginEmailForm() {
       </div>
 
       {error && (
-        <div
-          className="mb-4 rounded-lg border px-4 py-3 text-sm"
-          style={{ borderColor: "#e53e3e55", backgroundColor: "#fff5f5", color: "#c53030" }}
-        >
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 font-[family-name:var(--font-delius)] text-sm text-red-700">
           {error}
         </div>
       )}
@@ -87,14 +81,7 @@ export default function LoginEmailForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full rounded-xl border px-4 py-3 font-[family-name:var(--font-delius)] text-sm outline-none transition-colors"
-            style={{
-              backgroundColor: "#fdfaf5",
-              borderColor: "#1f1a1720",
-              color: "#1f1a17",
-            }}
-            onFocus={(e) => (e.target.style.borderColor = "#1f1a1760")}
-            onBlur={(e) => (e.target.style.borderColor = "#1f1a1720")}
+            className="auth-input"
           />
           <input
             type="password"
@@ -102,30 +89,16 @@ export default function LoginEmailForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full rounded-xl border px-4 py-3 font-[family-name:var(--font-delius)] text-sm outline-none transition-colors"
-            style={{
-              backgroundColor: "#fdfaf5",
-              borderColor: "#1f1a1720",
-              color: "#1f1a17",
-            }}
-            onFocus={(e) => (e.target.style.borderColor = "#1f1a1760")}
-            onBlur={(e) => (e.target.style.borderColor = "#1f1a1720")}
+            className="auth-input"
           />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full cursor-pointer rounded-xl py-3 font-[family-name:var(--font-delius)] text-sm font-medium transition-opacity hover:opacity-80 disabled:opacity-50"
-            style={{ backgroundColor: "#1f1a17", color: "#f6f0e6" }}
-          >
+          <button type="submit" disabled={loading} className="auth-submit-btn">
             {loading ? "Signing in…" : "Sign in"}
           </button>
         </form>
       ) : sent ? (
-        <div
-          className="rounded-xl border px-5 py-4 text-center font-[family-name:var(--font-delius)] text-sm"
-          style={{ borderColor: "#1f1a1720", color: "#1f1a17aa" }}
-        >
-          Check your inbox — a magic link is on its way to <strong style={{ color: "#1f1a17" }}>{email}</strong>.
+        <div className="rounded-xl border border-[#1f1a17]/10 bg-[#fdfaf5] px-5 py-4 text-center font-[family-name:var(--font-delius)] text-sm text-[#1f1a17]/60">
+          Check your inbox — a magic link is on its way to{" "}
+          <strong className="text-[#1f1a17]">{email}</strong>.
         </div>
       ) : (
         <form onSubmit={handleMagicLink} className="flex flex-col gap-3">
@@ -135,21 +108,9 @@ export default function LoginEmailForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full rounded-xl border px-4 py-3 font-[family-name:var(--font-delius)] text-sm outline-none transition-colors"
-            style={{
-              backgroundColor: "#fdfaf5",
-              borderColor: "#1f1a1720",
-              color: "#1f1a17",
-            }}
-            onFocus={(e) => (e.target.style.borderColor = "#1f1a1760")}
-            onBlur={(e) => (e.target.style.borderColor = "#1f1a1720")}
+            className="auth-input"
           />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full cursor-pointer rounded-xl py-3 font-[family-name:var(--font-delius)] text-sm font-medium transition-opacity hover:opacity-80 disabled:opacity-50"
-            style={{ backgroundColor: "#1f1a17", color: "#f6f0e6" }}
-          >
+          <button type="submit" disabled={loading} className="auth-submit-btn">
             {loading ? "Sending…" : "Send magic link"}
           </button>
         </form>

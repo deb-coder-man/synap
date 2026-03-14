@@ -65,7 +65,10 @@ export default function ActionPage() {
     if (activeTasks.length === 0) return;
     setGenerating(true);
     try {
-      const orderedIds = await prioritiseTasks(hours, deepWork, activeTasks);
+      const slimTasks = activeTasks.map(({ id, title, priority, estimatedHours, dueDate }) => ({
+        id, title, priority, estimatedHours, dueDate,
+      }));
+      const orderedIds = await prioritiseTasks(hours, deepWork, slimTasks as typeof activeTasks);
 
       // Build ordered list from returned IDs, append any missing as fallback
       const ordered: string[] = [];
@@ -179,7 +182,7 @@ export default function ActionPage() {
           <button
             onClick={handleGenerate}
             disabled={generating || activeTasks.length === 0}
-            className="flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 font-[family-name:var(--font-delius)] text-sm text-background transition-opacity hover:opacity-80 disabled:opacity-40"
+            className="flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 font-[family-name:var(--font-delius)] text-sm text-background transition-all hover:opacity-80 active:scale-[0.97] disabled:opacity-40"
           >
             <Sparkles size={14} />
             {generating ? "Generating\u2026" : generated ? "Regenerate" : "Generate plan"}
@@ -201,38 +204,40 @@ export default function ActionPage() {
               </p>
             </div>
           ) : (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragStart={onDragStart}
-              onDragEnd={onDragEnd}
-            >
-              <SortableContext
-                items={visibleTasks.map((t) => t.id)}
-                strategy={verticalListSortingStrategy}
+            <div className="animate-page-content-in flex flex-col gap-2">
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={onDragStart}
+                onDragEnd={onDragEnd}
               >
-                {visibleTasks.map((task, i) => (
-                  <ActionTaskCard
-                    key={task.id}
-                    task={task}
-                    position={i + 1}
-                    onComplete={handleComplete}
-                    onSkip={handleSkip}
-                    onClick={setSelectedTask}
-                  />
-                ))}
-              </SortableContext>
+                <SortableContext
+                  items={visibleTasks.map((t) => t.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {visibleTasks.map((task, i) => (
+                    <ActionTaskCard
+                      key={task.id}
+                      task={task}
+                      position={i + 1}
+                      onComplete={handleComplete}
+                      onSkip={handleSkip}
+                      onClick={setSelectedTask}
+                    />
+                  ))}
+                </SortableContext>
 
-              <DragOverlay>
-                {activeTask && (
-                  <div className="rounded-xl bg-foreground/5 px-4 py-3 shadow-xl opacity-90">
-                    <p className="font-[family-name:var(--font-delius)] text-sm text-foreground">
-                      {activeTask.title}
-                    </p>
-                  </div>
-                )}
-              </DragOverlay>
-            </DndContext>
+                <DragOverlay>
+                  {activeTask && (
+                    <div className="rounded-xl bg-foreground/5 px-4 py-3 shadow-xl opacity-90">
+                      <p className="font-[family-name:var(--font-delius)] text-sm text-foreground">
+                        {activeTask.title}
+                      </p>
+                    </div>
+                  )}
+                </DragOverlay>
+              </DndContext>
+            </div>
           )}
         </div>
       </div>

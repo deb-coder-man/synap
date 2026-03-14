@@ -18,9 +18,10 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { Plus } from "lucide-react";
-import { useLists, useUpdateList, listKeys } from "@/app/hooks/useLists";
-import { useUpdateTask } from "@/app/hooks/useTasks";
+import { useLists, listKeys } from "@/app/hooks/useLists";
 import { useQueryClient } from "@tanstack/react-query";
+import { reorderLists } from "@/lib/api/lists";
+import { reorderTasks } from "@/lib/api/tasks";
 import ListColumn from "@/app/components/board/ListColumn";
 import TaskCard from "@/app/components/board/TaskCard";
 import CreateListModal from "@/app/components/board/CreateListModal";
@@ -32,8 +33,6 @@ export default function BoardPage() {
   const { data: rawLists = [] } = useLists();
   const lists = rawLists as ListWithTasks[];
 
-  const { mutate: updateList } = useUpdateList();
-  const { mutate: updateTask } = useUpdateTask();
   const queryClient = useQueryClient();
 
   const [createListOpen, setCreateListOpen] = useState(false);
@@ -109,9 +108,10 @@ export default function BoardPage() {
         listKeys.all,
         reordered.map((l, i) => ({ ...l, order: i }))
       );
-      reordered.forEach((list, i) => {
-        if (list.order !== i) updateList({ id: list.id, data: { order: i } });
-      });
+      const listUpdates = reordered
+        .map((list, i) => ({ id: list.id, order: i }))
+        .filter((_, i) => reordered[i].order !== i);
+      if (listUpdates.length > 0) reorderLists(listUpdates);
       return;
     }
 
@@ -147,11 +147,10 @@ export default function BoardPage() {
         )
       );
 
-      newTasks.forEach((task, i) => {
-        if (task.order !== i || task.listId !== targetListId) {
-          updateTask({ id: task.id, data: { order: i, listId: targetListId } });
-        }
-      });
+      const taskUpdates = newTasks
+        .map((task, i) => ({ id: task.id, order: i, listId: targetListId }))
+        .filter((_, i) => newTasks[i].order !== i || newTasks[i].listId !== targetListId);
+      if (taskUpdates.length > 0) reorderTasks(taskUpdates);
     }
   }
 
@@ -167,15 +166,15 @@ export default function BoardPage() {
     >
       <div className="scrollbar-themed flex min-h-[calc(100vh-120px)] items-start gap-8 overflow-x-auto px-6 pb-8 snap-x snap-mandatory scroll-smooth sm:gap-[25px]">
         <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
-          {lists.map((list) => (
-            <ListColumn key={list.id} list={list} />
+          {lists.map((list, i) => (
+            <ListColumn key={list.id} list={list} order={i} />
           ))}
         </SortableContext>
 
         {/* Add a List */}
         <button
           onClick={() => setCreateListOpen(true)}
-          className="flex w-[calc(100vw-3rem)] shrink-0 snap-center items-center justify-between rounded-[15px] bg-foreground px-[23px] py-[19px] font-[family-name:var(--font-delius)] text-[20px] text-background hover:opacity-80 sm:w-[328px] sm:snap-start"
+          className="flex w-[calc(100vw-3rem)] shrink-0 snap-center items-center justify-between rounded-[15px] bg-foreground px-[23px] py-[19px] font-[family-name:var(--font-delius)] text-[20px] text-background transition-all hover:opacity-80 active:scale-[0.97] sm:w-[328px] sm:snap-start"
         >
           <span>Add a List</span>
           <Plus size={28} />
@@ -186,7 +185,7 @@ export default function BoardPage() {
       <DragOverlay>
         {activeList && <ListColumn list={activeList} />}
         {activeTask && (
-          <div className="w-[280px] rounded-lg bg-background shadow-xl opacity-90">
+          <div className="w-[280px] scale-[1.03] rounded-lg bg-background shadow-2xl ring-1 ring-foreground/5">
             <TaskCard task={activeTask} listColour="#f6f0e6" onOpen={() => {}} />
           </div>
         )}

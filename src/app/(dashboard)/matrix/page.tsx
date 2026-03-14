@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useTasks, useUpdateTask } from "@/app/hooks/useTasks";
+import { useTasks, taskKeys } from "@/app/hooks/useTasks";
+import { useQueryClient } from "@tanstack/react-query";
+import { batchUpdateTaskFlags } from "@/lib/api/tasks";
 import MatrixQuadrant from "@/app/components/matrix/MatrixQuadrant";
 import TaskDetailModal from "@/app/components/board/TaskDetailModal";
 import type { Task } from "@/lib/types";
@@ -62,7 +64,7 @@ function computePlacement(task: Task): { urgent: boolean; important: boolean } {
 
 export default function MatrixPage() {
   const { data: allTasks = [] } = useTasks();
-  const { mutate: updateTask } = useUpdateTask();
+  const queryClient = useQueryClient();
 
   const [quadrants, setQuadrants] = useState<QuadrantConfig[]>(DEFAULT_QUADRANTS);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -72,20 +74,26 @@ export default function MatrixPage() {
     setQuadrants(loadQuadrants());
   }, []);
 
-  // Auto-place tasks on page mount (runs once when tasks first load)
+  // Auto-place tasks on page mount — batch update stale flags in a single request
   const hasAutoPlaced = useRef(false);
   useEffect(() => {
     if (hasAutoPlaced.current || allTasks.length === 0) return;
     hasAutoPlaced.current = true;
 
     const active = (allTasks as Task[]).filter((t) => !t.archived && !t.completed);
-    active.forEach((task) => {
-      const { urgent, important } = computePlacement(task);
-      if (task.urgent !== urgent || task.important !== important) {
-        updateTask({ id: task.id, data: { urgent, important } });
-      }
-    });
-  }, [allTasks, updateTask]);
+    const stale = active
+      .map((task) => ({ task, placement: computePlacement(task) }))
+      .filter(({ task, placement }) =>
+        task.urgent !== placement.urgent || task.important !== placement.important
+      )
+      .map(({ task, placement }) => ({ id: task.id, ...placement }));
+
+    if (stale.length > 0) {
+      batchUpdateTaskFlags(stale).then(() => {
+        queryClient.invalidateQueries({ queryKey: taskKeys.all });
+      });
+    }
+  }, [allTasks, queryClient]);
 
   // Filter to active (non-archived, non-completed) tasks
   const activeTasks = (allTasks as Task[]).filter((t) => !t.archived && !t.completed);
@@ -116,10 +124,11 @@ export default function MatrixPage() {
   return (
     <>
       <div className="grid grid-cols-1 gap-5 px-6 pb-6 sm:grid-cols-2 sm:grid-rows-2 sm:h-[calc(100vh-140px)]">
-        {quadrants.map((q) => (
+        {quadrants.map((q, i) => (
           <MatrixQuadrant
             key={q.id}
             id={q.id}
+            order={i}
             title={q.title}
             colour={q.colour}
             tasks={getQuadrantTasks(q)}

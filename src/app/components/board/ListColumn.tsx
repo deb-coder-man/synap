@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Plus } from "lucide-react";
 import {
   SortableContext,
@@ -17,9 +17,10 @@ import type { List, Task } from "@/lib/types";
 
 type Props = {
   list: List & { tasks: Task[] };
+  order?: number;
 };
 
-export default function ListColumn({ list }: Props) {
+export default function ListColumn({ list, order = 0 }: Props) {
   const [taskModalOpen, setTaskModalOpen]     = useState(false);
   const [editListOpen, setEditListOpen]       = useState(false);
   const [selectedTask, setSelectedTask]       = useState<Task | null>(null);
@@ -49,8 +50,8 @@ export default function ListColumn({ list }: Props) {
     <>
       <div
         ref={setNodeRef}
-        style={{ ...columnStyle, backgroundColor: list.colour }}
-        className="flex w-[calc(100vw-3rem)] shrink-0 snap-center flex-col gap-[13px] rounded-[10px] px-[15px] py-[17px] sm:w-[300px] sm:snap-start"
+        style={{ ...columnStyle, backgroundColor: list.colour, '--col-stagger': `${order * 60}ms` } as React.CSSProperties}
+        className="animate-board-column-in flex w-[calc(100vw-3rem)] shrink-0 snap-center flex-col gap-[13px] rounded-[10px] px-[15px] py-[17px] sm:w-[300px] sm:snap-start"
       >
         {/* Column header — drag handle */}
         <div
@@ -84,7 +85,7 @@ export default function ListColumn({ list }: Props) {
         {/* Add a card button */}
         <button
           onClick={() => setTaskModalOpen(true)}
-          className="mt-2 flex items-center justify-between rounded-[10px] px-[10px] py-[6px] font-[family-name:var(--font-delius)] text-[20px] text-background transition-colors hover:bg-background/15 hover:text-background"
+          className="mt-1 flex items-center gap-2 rounded-[10px] px-[10px] py-[8px] font-[family-name:var(--font-delius)] text-[16px] text-background/70 transition-all hover:bg-background/15 hover:text-background"
         >
           <span>Add a card</span>
           <Plus size={24} />

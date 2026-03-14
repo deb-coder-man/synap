@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { requireAuth } from "@/lib/api-auth";
 import type { Task } from "@/lib/types";
 
 const client = new Anthropic();
@@ -8,6 +9,9 @@ const SYSTEM_PROMPT =
   "You are a task scheduling assistant. You will be given a list of tasks and user preferences. Return ONLY a valid JSON array of task IDs (e.g. [\"id1\", \"id2\"]) in optimal completion order. No explanation, no markdown, no extra text.";
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { hours, deep, tasks } = (await req.json()) as {
       hours: number;

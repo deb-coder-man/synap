@@ -28,10 +28,14 @@ export default function Header() {
   ];
 
   function prefetch(href: string) {
+    // Always prefetch tasks for non-board pages; prefetch lists for board and archive
     if (href === "/board") {
       queryClient.prefetchQuery({ queryKey: listKeys.all, queryFn: getLists });
     } else {
       queryClient.prefetchQuery({ queryKey: taskKeys.all, queryFn: () => getTasks() });
+      if (href === "/archive") {
+        queryClient.prefetchQuery({ queryKey: listKeys.all, queryFn: getLists });
+      }
     }
   }
 

@@ -41,9 +41,9 @@ export function useCreateTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateTaskInput) => createTask(data),
-    onSuccess: (newTask) => {
+    onSuccess: () => {
+      // taskKeys.all = ["tasks"] prefix-matches all task sub-queries (byList, detail, etc.)
       queryClient.invalidateQueries({ queryKey: taskKeys.all });
-      queryClient.invalidateQueries({ queryKey: taskKeys.byList(newTask.listId) });
       queryClient.invalidateQueries({ queryKey: ["lists"] });
     },
   });
@@ -55,11 +55,9 @@ export function useUpdateTask() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateTaskInput }) =>
       updateTask(id, data),
-    onSuccess: (updatedTask) => {
+    onSuccess: () => {
+      // taskKeys.all = ["tasks"] prefix-matches archived, byList, detail — no need to list them separately
       queryClient.invalidateQueries({ queryKey: taskKeys.all });
-      queryClient.invalidateQueries({ queryKey: taskKeys.archived });
-      queryClient.invalidateQueries({ queryKey: taskKeys.byList(updatedTask.listId) });
-      queryClient.invalidateQueries({ queryKey: taskKeys.detail(updatedTask.id) });
       queryClient.invalidateQueries({ queryKey: ["lists"] });
     },
   });
@@ -71,8 +69,8 @@ export function useDeleteTask() {
   return useMutation({
     mutationFn: (id: string) => deleteTask(id),
     onSuccess: () => {
+      // taskKeys.all = ["tasks"] prefix-matches archived too
       queryClient.invalidateQueries({ queryKey: taskKeys.all });
-      queryClient.invalidateQueries({ queryKey: taskKeys.archived });
       queryClient.invalidateQueries({ queryKey: ["lists"] });
     },
   });

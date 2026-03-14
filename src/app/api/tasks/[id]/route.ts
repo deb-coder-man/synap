@@ -48,20 +48,15 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       archived,
     } = body;
 
-    // Verify ownership before updating
-    const existing = await prisma.task.findFirst({
-      where: { id, list: { userId } },
-    });
-    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
-
-    // If moving to a different list, verify the new list also belongs to the user
-    if (listId && listId !== existing.listId) {
+    // If moving to a different list, verify the new list belongs to the user
+    if (listId) {
       const newList = await prisma.list.findFirst({ where: { id: listId, userId } });
       if (!newList) return NextResponse.json({ error: "List not found" }, { status: 404 });
     }
 
-    const updated = await prisma.task.update({
-      where: { id },
+    // Combine ownership check + update into a single query via updateMany
+    const result = await prisma.task.updateMany({
+      where: { id, list: { userId } },
       data: {
         ...(title !== undefined && { title }),
         ...(description !== undefined && { description }),
@@ -77,6 +72,9 @@ export async function PATCH(request: NextRequest, { params }: Params) {
         ...(archived !== undefined && { archived }),
       },
     });
+    if (result.count === 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    const updated = await prisma.task.findUnique({ where: { id } });
     return NextResponse.json(updated);
   } catch {
     return NextResponse.json({ error: "Failed to update task" }, { status: 500 });
@@ -92,12 +90,12 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
   const { id } = await params;
 
   try {
-    const existing = await prisma.task.findFirst({
+    // Combine ownership check + delete into a single query via deleteMany
+    const result = await prisma.task.deleteMany({
       where: { id, list: { userId } },
     });
-    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (result.count === 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    await prisma.task.delete({ where: { id } });
     return new NextResponse(null, { status: 204 });
   } catch {
     return NextResponse.json({ error: "Failed to delete task" }, { status: 500 });

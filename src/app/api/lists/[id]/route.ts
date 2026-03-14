@@ -15,7 +15,12 @@ export async function GET(_request: NextRequest, { params }: Params) {
   try {
     const list = await prisma.list.findFirst({
       where: { id, userId },
-      include: { tasks: { orderBy: { order: "asc" } } },
+      include: {
+        tasks: {
+          where: { archived: false },
+          orderBy: { order: "asc" },
+        },
+      },
     });
     if (!list) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(list);
@@ -36,25 +41,27 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     const body = await request.json();
     const { name, colour, order, archiveAllTasks } = body;
 
-    // Verify ownership before updating
-    const existing = await prisma.list.findFirst({ where: { id, userId } });
-    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
-
-    // Bulk archive all non-archived tasks in this list
+    // Bulk archive all non-archived tasks in this list (ownership verified by userId join below)
     if (archiveAllTasks) {
       await prisma.task.updateMany({
-        where: { listId: id, archived: false },
+        where: { listId: id, archived: false, list: { userId } },
         data: { archived: true, completed: true, completedAt: new Date() },
       });
     }
 
-    const updated = await prisma.list.update({
-      where: { id },
+    // Combine ownership check + update into a single query via updateMany
+    const result = await prisma.list.updateMany({
+      where: { id, userId },
       data: {
         ...(name !== undefined && { name }),
         ...(colour !== undefined && { colour }),
         ...(order !== undefined && { order }),
       },
+    });
+    if (result.count === 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    const updated = await prisma.list.findUnique({
+      where: { id },
       include: {
         tasks: {
           where: { archived: false },
@@ -77,10 +84,10 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
   const { id } = await params;
 
   try {
-    const existing = await prisma.list.findFirst({ where: { id, userId } });
-    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    // Combine ownership check + delete into a single query via deleteMany
+    const result = await prisma.list.deleteMany({ where: { id, userId } });
+    if (result.count === 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    await prisma.list.delete({ where: { id } });
     return new NextResponse(null, { status: 204 });
   } catch {
     return NextResponse.json({ error: "Failed to delete list" }, { status: 500 });

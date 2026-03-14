@@ -62,8 +62,11 @@ export default function TaskDetailModal({ task, listName, open, onClose }: Props
             <span className="font-[family-name:var(--font-delius)] text-xl font-bold text-foreground sm:text-2xl">
               {listName}
             </span>
-            <button onClick={onClose} className="text-foreground/60 hover:text-foreground">
-              <X size={24} />
+            <button
+              onClick={onClose}
+              className="rounded-lg p-1.5 text-foreground/50 transition-colors hover:bg-foreground/8 hover:text-foreground"
+            >
+              <X size={20} />
             </button>
           </div>
 
@@ -73,7 +76,7 @@ export default function TaskDetailModal({ task, listName, open, onClose }: Props
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onBlur={() => title.trim() && title !== task.title && save({ title: title.trim() })}
-              className="w-full border-0 border-b border-foreground/20 bg-transparent font-[family-name:var(--font-delius)] text-3xl text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/60 sm:text-5xl"
+              className="w-full cursor-text border-0 border-b border-foreground/20 bg-transparent font-[family-name:var(--font-delius)] text-3xl text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/60 sm:text-5xl"
             />
 
             {/* Priority buttons */}
@@ -85,8 +88,10 @@ export default function TaskDetailModal({ task, listName, open, onClose }: Props
                     setPriority(p.value);
                     save({ priority: p.value });
                   }}
-                  className={`flex h-[46px] flex-1 min-w-[90px] items-center justify-center rounded-[7px] font-[family-name:var(--font-delius)] text-lg transition-opacity ${p.bg} ${
-                    priority === p.value ? "opacity-100 ring-2 ring-foreground/40" : "opacity-40"
+                  className={`flex h-[46px] flex-1 min-w-[90px] items-center justify-center rounded-[7px] font-[family-name:var(--font-delius)] text-lg transition-all ${p.bg} ${
+                    priority === p.value
+                      ? "opacity-100 ring-2 ring-foreground/40 shadow-sm"
+                      : "opacity-35 hover:opacity-60"
                   }`}
                 >
                   {p.label}
@@ -106,7 +111,7 @@ export default function TaskDetailModal({ task, listName, open, onClose }: Props
                   value={estHours}
                   onChange={(e) => setEstHours(e.target.value)}
                   onBlur={() => save({ estimatedHours: estHours ? parseFloat(estHours) : undefined })}
-                  className="w-20 border-b border-foreground/20 bg-transparent font-[family-name:var(--font-delius)] text-foreground outline-none focus:border-foreground/60"
+                  className="w-20 border-b border-foreground/20 bg-transparent font-[family-name:var(--font-delius)] text-foreground outline-none transition-colors focus:border-foreground/60"
                 />
               </div>
 
@@ -118,13 +123,13 @@ export default function TaskDetailModal({ task, listName, open, onClose }: Props
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
                   onBlur={() => save({ dueDate: dueDate || undefined })}
-                  className="max-w-full border-b border-foreground/20 bg-transparent font-[family-name:var(--font-delius)] text-foreground outline-none focus:border-foreground/60"
+                  className="max-w-full border-b border-foreground/20 bg-transparent font-[family-name:var(--font-delius)] text-foreground outline-none transition-colors focus:border-foreground/60"
                 />
               </div>
             </div>
 
             {/* Divider */}
-            <div className="h-px bg-foreground/15" />
+            <div className="h-px bg-foreground/10" />
 
             {/* Description */}
             <Textarea
@@ -133,14 +138,14 @@ export default function TaskDetailModal({ task, listName, open, onClose }: Props
               onChange={(e) => setDesc(e.target.value)}
               onBlur={() => description !== (task.description ?? "") && save({ description })}
               rows={6}
-              className="w-full resize-none border border-foreground/20 bg-transparent font-[family-name:var(--font-delius)] text-foreground placeholder:text-foreground/30 focus-visible:ring-foreground/30"
+              className="w-full resize-none border border-foreground/15 bg-transparent font-[family-name:var(--font-delius)] text-foreground placeholder:text-foreground/30 focus-visible:ring-foreground/20"
             />
 
             {/* Archive button + Complete toggle */}
             <div className="flex items-center justify-between gap-3">
               <button
                 onClick={() => { updateTask({ id: task.id, data: { archived: true, completed: true, completedAt: new Date().toISOString() } }); onClose(); }}
-                className="flex h-8 items-center gap-2 rounded-full px-3 font-[family-name:var(--font-delius)] text-sm text-foreground/50 transition-colors hover:bg-foreground/8 hover:text-foreground"
+                className="flex h-8 items-center gap-2 rounded-full px-3 font-[family-name:var(--font-delius)] text-sm text-foreground/40 transition-colors hover:bg-foreground/8 hover:text-foreground/70"
               >
                 <Archive size={14} />
                 Archive
@@ -150,7 +155,7 @@ export default function TaskDetailModal({ task, listName, open, onClose }: Props
                 className={`flex h-8 items-center gap-2 rounded-full px-4 font-[family-name:var(--font-delius)] text-sm transition-colors ${
                   task.completed
                     ? "bg-foreground text-background"
-                    : "border border-foreground/30 text-foreground hover:bg-foreground/10"
+                    : "border border-foreground/25 text-foreground hover:bg-foreground/8"
                 }`}
               >
                 {task.completed ? "✓ Completed" : "Mark complete"}

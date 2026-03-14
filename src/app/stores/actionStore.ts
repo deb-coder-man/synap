@@ -76,7 +76,7 @@ export const useActionStore = create<ActionStore>()(
         hours: s.hours,
         deepWork: s.deepWork,
         pomodoroMode: s.pomodoroMode,
-        pomodoroRemaining: s.pomodoroRemaining,
+        // pomodoroRemaining intentionally excluded — writing every second causes 1500+ localStorage writes per session
         pomodoroTotal: s.pomodoroTotal,
         pomodoroCount: s.pomodoroCount,
       }),

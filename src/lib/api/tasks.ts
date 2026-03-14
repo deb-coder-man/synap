@@ -51,3 +51,27 @@ export async function deleteTask(id: string): Promise<void> {
   const res = await fetch(`${BASE}/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error(`Failed to delete task ${id}`);
 }
+
+// ─── POST — batch update urgent/important flags ───────────────────────────────
+export async function batchUpdateTaskFlags(
+  items: { id: string; urgent?: boolean; important?: boolean }[]
+): Promise<void> {
+  const res = await fetch(`${BASE}/batch-update`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(items),
+  });
+  if (!res.ok) throw new Error("Failed to batch update task flags");
+}
+
+// ─── POST — batch reorder tasks ───────────────────────────────────────────────
+export async function reorderTasks(
+  items: { id: string; order: number; listId?: string }[]
+): Promise<void> {
+  const res = await fetch(`${BASE}/reorder`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(items),
+  });
+  if (!res.ok) throw new Error("Failed to reorder tasks");
+}

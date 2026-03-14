@@ -9,11 +9,10 @@ export async function GET() {
   const { userId } = auth;
 
   try {
-    const settings = await prisma.userSettings.upsert({
-      where: { userId },
-      create: { userId },
-      update: {},
-    });
+    let settings = await prisma.userSettings.findUnique({ where: { userId } });
+    if (!settings) {
+      settings = await prisma.userSettings.create({ data: { userId } });
+    }
     return NextResponse.json(settings);
   } catch {
     return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });

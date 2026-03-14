@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import MasonryGrid from "masonry-grid";
 import MatrixTaskCard from "./MatrixTaskCard";
 import QuadrantOptionsMenu from "./QuadrantOptionsMenu";
@@ -7,6 +8,7 @@ import type { Task } from "@/lib/types";
 
 type Props = {
   id: string;
+  order?: number;
   title: string;
   colour: string;
   tasks: Task[];
@@ -16,6 +18,7 @@ type Props = {
 
 export default function MatrixQuadrant({
   id,
+  order = 0,
   title,
   colour,
   tasks,
@@ -24,8 +27,8 @@ export default function MatrixQuadrant({
 }: Props) {
   return (
     <div
-      className="flex flex-col overflow-hidden rounded-[15px]"
-      style={{ backgroundColor: colour }}
+      className="animate-board-column-in flex flex-col overflow-hidden rounded-[15px]"
+      style={{ backgroundColor: colour, '--col-stagger': `${order * 80}ms` } as React.CSSProperties}
     >
       {/* Header */}
       <div className="flex shrink-0 items-center justify-between px-6 py-4">

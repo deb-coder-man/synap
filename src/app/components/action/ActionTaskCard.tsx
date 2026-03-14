@@ -44,10 +44,10 @@ export default function ActionTaskCard({ task, position, onComplete, onSkip, onC
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-4 rounded-xl bg-foreground/5 px-4 py-3 transition-shadow hover:shadow-sm"
+      className="flex items-center gap-4 rounded-xl bg-foreground/5 px-4 py-3 transition-all hover:bg-foreground/[0.07] hover:shadow-sm"
     >
       {/* Position number */}
-      <span className="w-6 shrink-0 text-center font-[family-name:var(--font-delius)] text-sm text-foreground/40">
+      <span className="w-5 shrink-0 text-center font-[family-name:var(--font-delius)] text-sm font-medium text-foreground/30">
         {position}
       </span>
 
@@ -55,7 +55,7 @@ export default function ActionTaskCard({ task, position, onComplete, onSkip, onC
       <button
         {...attributes}
         {...listeners}
-        className="shrink-0 cursor-grab text-foreground/30 hover:text-foreground/60 active:cursor-grabbing"
+        className="shrink-0 cursor-grab text-foreground/25 transition-colors hover:text-foreground/50 active:cursor-grabbing"
         onClick={(e) => e.stopPropagation()}
       >
         <GripVertical size={16} />
@@ -70,10 +70,10 @@ export default function ActionTaskCard({ task, position, onComplete, onSkip, onC
           {task.title}
         </p>
         <div className="flex items-center gap-2">
-          <div className={`h-2 w-2 shrink-0 rounded-full ${PRIORITY_DOT[task.priority]}`} />
+          <div className={`h-2.5 w-2.5 shrink-0 rounded-full ${PRIORITY_DOT[task.priority]}`} />
           {task.dueDate && (
             <span className="flex items-center gap-1 font-[family-name:var(--font-delius)] text-[11px] text-foreground/50">
-              <Clock size={10} />
+              <Clock size={11} />
               {formatDate(task.dueDate)}
             </span>
           )}
@@ -98,7 +98,7 @@ export default function ActionTaskCard({ task, position, onComplete, onSkip, onC
       <button
         onClick={() => onComplete(task.id)}
         title="Mark complete"
-        className="shrink-0 rounded-full border border-foreground/20 p-1.5 text-foreground/30 transition-colors hover:border-foreground/50 hover:text-foreground/60"
+        className="shrink-0 rounded-full border border-foreground/20 p-1.5 text-foreground/30 transition-all hover:border-green-400 hover:bg-green-500/10 hover:text-green-600"
       >
         <Check size={14} />
       </button>

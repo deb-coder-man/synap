@@ -17,10 +17,10 @@ export async function GET(request: NextRequest) {
       where: {
         list: { userId },
         ...(listId && { listId }),
-        ...(archivedParam === "true" && { archived: true }),
-        ...(archivedParam === "false" && { archived: false }),
+        archived: archivedParam === "true" ? true : false,
       },
       orderBy: { order: "asc" },
+      take: 500,
     });
     return NextResponse.json(tasks);
   } catch {
