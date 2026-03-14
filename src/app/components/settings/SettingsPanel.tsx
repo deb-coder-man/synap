@@ -98,7 +98,7 @@ export default function SettingsPanel({ open, onClose }: Props) {
             <div className="flex items-center gap-4">
               <div className="relative">
                 {imageUrl ? (
-                  <img src={imageUrl} alt="avatar" className="size-16 rounded-full object-cover" />
+                  <img src={imageUrl} alt="avatar" width={64} height={64} loading="lazy" className="size-16 rounded-full object-cover" />
                 ) : (
                   <div className="flex size-16 items-center justify-center rounded-full bg-foreground/10">
                     <User size={28} className="text-foreground/40" />

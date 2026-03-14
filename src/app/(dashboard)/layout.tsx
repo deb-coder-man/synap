@@ -18,7 +18,7 @@ export default async function DashboardLayout({
         <main className="flex-1">
           <Header />
           <PomodoroTicker />
-          <div className="relative pt-[90px] pb-[76px] sm:pt-[75px] sm:pb-[52px]">
+          <div className="animate-page-content-in relative pt-[90px] pb-[76px] sm:pt-[75px] sm:pb-[52px]">
             {children}
           </div>
         </main>

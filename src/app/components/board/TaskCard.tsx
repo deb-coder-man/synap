@@ -74,7 +74,7 @@ export default function TaskCard({ task, listColour, onOpen }: Props) {
       {/* Complete toggle — top right */}
       <button
         onClick={toggleComplete}
-        className={`absolute right-3 top-3 flex size-[22px] shrink-0 items-center justify-center rounded-full border-2 transition-all ${
+        className={`absolute right-3 top-3 flex size-[22px] shrink-0 items-center justify-center rounded-full border-2 transition-all active:scale-75 ${
           task.completed
             ? "border-green-500 bg-green-500 text-white"
             : "border-foreground/30 bg-transparent opacity-0 group-hover:opacity-100 hover:border-green-400 hover:bg-green-50"
@@ -83,7 +83,15 @@ export default function TaskCard({ task, listColour, onOpen }: Props) {
       >
         {task.completed && (
           <svg viewBox="0 0 10 8" className="h-[8px] w-[10px]">
-            <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M1 4l3 3 5-6"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="check-draw-path"
+            />
           </svg>
         )}
       </button>

@@ -14,6 +14,7 @@ export default function RegisterPage() {
           alt="Synaptex"
           width={160}
           height={160}
+          priority
           className="object-contain"
         />
         <p className="font-[family-name:var(--font-delius)] text-lg text-[#1f1a17]">

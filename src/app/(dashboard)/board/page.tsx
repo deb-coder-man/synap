@@ -166,15 +166,15 @@ export default function BoardPage() {
     >
       <div className="scrollbar-themed flex min-h-[calc(100vh-120px)] items-start gap-8 overflow-x-auto px-6 pb-8 snap-x snap-mandatory scroll-smooth sm:gap-[25px]">
         <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
-          {lists.map((list) => (
-            <ListColumn key={list.id} list={list} />
+          {lists.map((list, i) => (
+            <ListColumn key={list.id} list={list} order={i} />
           ))}
         </SortableContext>
 
         {/* Add a List */}
         <button
           onClick={() => setCreateListOpen(true)}
-          className="flex w-[calc(100vw-3rem)] shrink-0 snap-center items-center justify-between rounded-[15px] bg-foreground px-[23px] py-[19px] font-[family-name:var(--font-delius)] text-[20px] text-background hover:opacity-80 sm:w-[328px] sm:snap-start"
+          className="flex w-[calc(100vw-3rem)] shrink-0 snap-center items-center justify-between rounded-[15px] bg-foreground px-[23px] py-[19px] font-[family-name:var(--font-delius)] text-[20px] text-background transition-all hover:opacity-80 active:scale-[0.97] sm:w-[328px] sm:snap-start"
         >
           <span>Add a List</span>
           <Plus size={28} />

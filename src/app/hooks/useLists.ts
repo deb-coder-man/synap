@@ -46,9 +46,9 @@ export function useUpdateList() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateListInput }) =>
       updateList(id, data),
-    onSuccess: (_, { id }) => {
+    onSuccess: () => {
+      // listKeys.all = ["lists"] prefix-matches listKeys.detail too
       queryClient.invalidateQueries({ queryKey: listKeys.all });
-      queryClient.invalidateQueries({ queryKey: listKeys.detail(id) });
       // archiveAllTasks changes archived tasks — refresh the archive page cache
       queryClient.invalidateQueries({ queryKey: taskKeys.archived });
     },

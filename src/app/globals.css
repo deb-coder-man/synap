@@ -209,6 +209,87 @@ body {
   background-color: rgb(31 26 23 / 0.12);
 }
 
+/* ─── App-wide Animation Keyframes ───────────────────────────────────────── */
+
+/* Auth card / hero entrance — bigger lift for the first impression */
+@keyframes auth-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subtle page content fade — used on dashboard layout children */
+@keyframes page-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-auth-card-in {
+  animation: auth-card-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-page-content-in {
+  animation: page-content-in 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 60ms;
+}
+
+/* ─── Board Animations ────────────────────────────────────────────────────── */
+
+@keyframes board-column-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 14;
+    opacity: 0.4;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.animate-board-column-in {
+  animation: board-column-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--col-stagger, 0ms);
+}
+
+.check-draw-path {
+  stroke-dasharray: 14;
+  animation: check-draw 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-auth-card-in,
+  .animate-page-content-in,
+  .animate-board-column-in {
+    animation: none;
+  }
+  .check-draw-path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
 /* ─── Auth page utilities (always cream-themed, never overridden by UserSettings) ── */
 
 .auth-input {

@@ -124,10 +124,11 @@ export default function MatrixPage() {
   return (
     <>
       <div className="grid grid-cols-1 gap-5 px-6 pb-6 sm:grid-cols-2 sm:grid-rows-2 sm:h-[calc(100vh-140px)]">
-        {quadrants.map((q) => (
+        {quadrants.map((q, i) => (
           <MatrixQuadrant
             key={q.id}
             id={q.id}
+            order={i}
             title={q.title}
             colour={q.colour}
             tasks={getQuadrantTasks(q)}

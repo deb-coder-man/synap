@@ -136,7 +136,7 @@ export default function ArchivePage() {
             <button
               key={p}
               onClick={() => togglePriority(p)}
-              className={`rounded-full px-3 py-1 font-[family-name:var(--font-delius)] text-xs transition-colors ${
+              className={`rounded-full px-3 py-1 font-[family-name:var(--font-delius)] text-xs transition-all active:scale-95 ${
                 priorityFilter.includes(p)
                   ? "bg-foreground text-background"
                   : "bg-foreground/8 text-foreground/60 hover:bg-foreground/15"
