@@ -77,7 +77,7 @@ export default function SettingsPanel({ open, onClose }: Props) {
       <div className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
 
       {/* Panel */}
-      <div className="fixed right-0 top-0 z-50 flex h-screen w-full max-w-[420px] flex-col overflow-y-auto bg-background shadow-2xl">
+      <div className="fixed right-0 top-0 z-50 flex h-screen w-full max-w-[420px] flex-col overflow-y-auto bg-background shadow-2xl pb-[76px] sm:pb-0">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-foreground/10 px-7 py-5">
           <h2 className="font-[family-name:var(--font-delius)] text-xl font-bold text-foreground">Settings</h2>

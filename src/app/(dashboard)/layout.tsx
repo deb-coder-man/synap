@@ -15,7 +15,7 @@ export default async function DashboardLayout({
       <main className="flex-1">
         
           <Header />
-        <div className="relative">
+        <div className="relative pt-[90px] pb-[76px] sm:pt-[75px] sm:pb-0">
           {children}
         </div>
 

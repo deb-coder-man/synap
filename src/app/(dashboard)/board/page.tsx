@@ -29,7 +29,7 @@ import type { List, Task } from "@/lib/types";
 type ListWithTasks = List & { tasks: Task[] };
 
 export default function BoardPage() {
-  const { data: rawLists = [], isLoading } = useLists();
+  const { data: rawLists = [] } = useLists();
   const lists = rawLists as ListWithTasks[];
 
   const { mutate: updateList } = useUpdateList();
@@ -157,14 +157,6 @@ export default function BoardPage() {
 
   // ─── Render ────────────────────────────────────────────────────────────────
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-32">
-        <p className="font-[family-name:var(--font-delius)] text-foreground/50">Loading…</p>
-      </div>
-    );
-  }
-
   return (
     <DndContext
       sensors={sensors}
@@ -173,7 +165,7 @@ export default function BoardPage() {
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}
     >
-      <div className="flex min-h-[calc(100vh-120px)] items-start gap-[46px] overflow-x-auto px-6 pb-8">
+      <div className="flex min-h-[calc(100vh-120px)] items-start gap-8 overflow-x-auto px-6 pb-8 snap-x snap-mandatory scroll-smooth sm:gap-[25px]">
         <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
           {lists.map((list) => (
             <ListColumn key={list.id} list={list} />
@@ -183,7 +175,7 @@ export default function BoardPage() {
         {/* Add a List */}
         <button
           onClick={() => setCreateListOpen(true)}
-          className="flex w-[328px] shrink-0 items-center justify-between rounded-[15px] bg-foreground px-[23px] py-[19px] font-[family-name:var(--font-delius)] text-[20px] text-background hover:opacity-80"
+          className="flex w-[calc(100vw-3rem)] shrink-0 snap-center items-center justify-between rounded-[15px] bg-foreground px-[23px] py-[19px] font-[family-name:var(--font-delius)] text-[20px] text-background hover:opacity-80 sm:w-[328px] sm:snap-start"
         >
           <span>Add a List</span>
           <Plus size={28} />

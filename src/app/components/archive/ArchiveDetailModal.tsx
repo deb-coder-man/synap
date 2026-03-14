@@ -106,7 +106,7 @@ export default function ArchiveDetailModal({ task, lists, open, onClose }: Props
     <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
       <DialogContent
         showCloseButton={false}
-        className="max-w-md overflow-hidden rounded-2xl border-none bg-background p-0 shadow-2xl"
+        className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border-none bg-background p-0 shadow-2xl"
       >
         <DialogTitle className="sr-only">Archived task</DialogTitle>
 

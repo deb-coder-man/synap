@@ -27,7 +27,7 @@ import TaskDetailModal from "@/app/components/board/TaskDetailModal";
 import type { Task } from "@/lib/types";
 
 export default function ActionPage() {
-  const { data: allTasks = [], isLoading } = useTasks();
+  const { data: allTasks = [] } = useTasks();
   const { mutate: updateTask } = useUpdateTask();
 
   const {
@@ -132,8 +132,13 @@ export default function ActionPage() {
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex h-[calc(100vh-140px)] gap-6 px-6 pb-6">
-      {/* Left panel: task list */}
+    <div className="flex flex-col gap-6 px-6 pb-6 sm:flex-row sm:h-[calc(100vh-140px)]">
+      {/* Timer panel — top on mobile, right on desktop */}
+      <div className="flex w-full shrink-0 flex-col items-center justify-center rounded-xl bg-foreground/5 px-6 py-8 sm:order-last sm:w-72">
+        <PomodoroTimer />
+      </div>
+
+      {/* Task list panel */}
       <div className="flex flex-1 flex-col gap-4 overflow-hidden">
         {/* Session config */}
         <div className="flex shrink-0 flex-wrap items-end gap-4 rounded-xl bg-foreground/5 px-5 py-4">
@@ -183,11 +188,7 @@ export default function ActionPage() {
 
         {/* Task list */}
         <div className="flex flex-1 flex-col gap-2 overflow-y-auto">
-          {isLoading ? (
-            <div className="flex h-full items-center justify-center">
-              <p className="font-[family-name:var(--font-delius)] text-foreground/40">Loading\u2026</p>
-            </div>
-          ) : !generated ? (
+          {!generated ? (
             <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-foreground/15">
               <p className="font-[family-name:var(--font-delius)] text-sm text-foreground/40">
                 Configure your session above to generate a plan
@@ -234,11 +235,6 @@ export default function ActionPage() {
             </DndContext>
           )}
         </div>
-      </div>
-
-      {/* Right panel: Pomodoro timer */}
-      <div className="flex w-72 shrink-0 flex-col items-center justify-center rounded-xl bg-foreground/5 px-6 py-8">
-        <PomodoroTimer />
       </div>
 
       {/* Task detail modal */}

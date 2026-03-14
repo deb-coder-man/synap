@@ -19,7 +19,7 @@ const PRIORITY_LABELS: Record<Priority, string> = {
 type SortOption = "" | "date-asc" | "date-desc" | "hours-asc" | "hours-desc";
 
 export default function ArchivePage() {
-  const { data: allTasks = [], isLoading } = useTasks();
+  const { data: allTasks = [] } = useTasks();
   const { data: lists = [] } = useLists();
   console.log(allTasks)
   // Only work with archived tasks
@@ -194,11 +194,7 @@ export default function ArchivePage() {
       </div>
 
       {/* ── Grid ── */}
-      {isLoading ? (
-        <div className="flex items-center justify-center py-24">
-          <p className="font-[family-name:var(--font-delius)] text-foreground/40">Loading\u2026</p>
-        </div>
-      ) : filtered.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="flex items-center justify-center rounded-xl border border-dashed border-foreground/15 py-24">
           <p className="font-[family-name:var(--font-delius)] text-sm text-foreground/40">
             {archivedTasks.length === 0

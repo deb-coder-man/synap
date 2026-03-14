@@ -72,7 +72,7 @@ function computePlacement(task: Task): { urgent: boolean; important: boolean } {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MatrixPage() {
-  const { data: allTasks = [], isLoading } = useTasks();
+  const { data: allTasks = [] } = useTasks();
   const { mutate: updateTask } = useUpdateTask();
 
   const [quadrants, setQuadrants] = useState<QuadrantConfig[]>(DEFAULT_QUADRANTS);
@@ -153,14 +153,6 @@ export default function MatrixPage() {
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-32">
-        <p className="font-[family-name:var(--font-delius)] text-foreground/50">Loading…</p>
-      </div>
-    );
-  }
-
   return (
     <DndContext
       sensors={sensors}
@@ -168,7 +160,7 @@ export default function MatrixPage() {
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
     >
-      <div className="grid h-[calc(100vh-140px)] grid-cols-2 grid-rows-2 gap-5 px-6 pb-6">
+      <div className="grid grid-cols-1 gap-5 px-6 pb-6 sm:grid-cols-2 sm:grid-rows-2 sm:h-[calc(100vh-140px)]">
         {quadrants.map((q) => (
           <MatrixQuadrant
             key={q.id}

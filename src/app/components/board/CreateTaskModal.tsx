@@ -58,21 +58,21 @@ export default function CreateTaskModal({ listId, listName, open, onClose }: Pro
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent showCloseButton={false} className="max-w-[860px] rounded-xl border-none bg-background p-0 shadow-2xl">
+      <DialogContent showCloseButton={false} className="w-full sm:max-w-[860px] max-h-[90vh] rounded-xl border-none bg-background p-0 shadow-2xl overflow-hidden flex flex-col">
         <DialogTitle className="sr-only">Add a task to {listName}</DialogTitle>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-0">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-0 overflow-hidden flex-1 min-h-0">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-foreground/10 px-8 py-5">
-            <span className="font-[family-name:var(--font-delius)] text-2xl font-bold text-foreground">
+          <div className="flex shrink-0 items-center justify-between border-b border-foreground/10 px-4 py-4 sm:px-8 sm:py-5">
+            <span className="font-[family-name:var(--font-delius)] text-xl font-bold text-foreground sm:text-2xl">
               {listName}
             </span>
             <button type="button" onClick={onClose} className="text-foreground/60 hover:text-foreground">
-              <X size={28} />
+              <X size={24} />
             </button>
           </div>
 
-          <div className="flex flex-col gap-6 px-8 py-6">
+          <div className="flex flex-col gap-5 overflow-y-auto px-4 py-5 sm:gap-6 sm:px-8 sm:py-6">
             {/* Title input */}
             <Input
               autoFocus
@@ -80,7 +80,7 @@ export default function CreateTaskModal({ listId, listName, open, onClose }: Pro
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="border-0 border-b border-foreground/20 rounded-none bg-transparent px-0 font-[family-name:var(--font-delius)] text-4xl text-foreground placeholder:text-foreground/30 focus-visible:ring-0 focus-visible:border-foreground/60"
+              className="border-0 border-b border-foreground/20 rounded-none bg-transparent px-0 font-[family-name:var(--font-delius)] text-2xl text-foreground placeholder:text-foreground/30 focus-visible:ring-0 focus-visible:border-foreground/60 sm:text-4xl"
             />
 
             {/* Priority selector */}

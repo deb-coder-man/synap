@@ -68,7 +68,7 @@ export default function CreateListModal({ open, onClose, editingList, nextOrder 
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent className="max-w-sm rounded-xl border-none bg-background p-0 shadow-2xl">
+      <DialogContent className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-xl border-none bg-background p-0 shadow-2xl">
         <DialogTitle className="sr-only">
           {editingList ? "Edit list" : "Create a list"}
         </DialogTitle>
