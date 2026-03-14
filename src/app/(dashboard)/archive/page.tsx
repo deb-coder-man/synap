@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { Search, X } from "lucide-react";
 import MasonryGrid from "masonry-grid";
-import { useArchivedTasks } from "@/app/hooks/useTasks";
+import {useTasks } from "@/app/hooks/useTasks";
 import { useLists } from "@/app/hooks/useLists";
 import ArchiveTaskCard from "@/app/components/archive/ArchiveTaskCard";
 import ArchiveDetailModal from "@/app/components/archive/ArchiveDetailModal";
@@ -19,8 +19,13 @@ const PRIORITY_LABELS: Record<Priority, string> = {
 type SortOption = "" | "date-asc" | "date-desc" | "hours-asc" | "hours-desc";
 
 export default function ArchivePage() {
-  const { data: archivedTasks = [], isLoading } = useArchivedTasks();
+  const { data: allTasks = [], isLoading } = useTasks();
   const { data: lists = [] } = useLists();
+  console.log(allTasks)
+  // Only work with archived tasks
+  const archivedTasks = (allTasks as Task[]).filter((t) => t.archived === true);
+
+  console.log(archivedTasks)
 
   const [search, setSearch] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<Priority[]>([]);
@@ -35,7 +40,7 @@ export default function ArchivePage() {
   );
 
   const filtered = useMemo(() => {
-    let tasks = archivedTasks as Task[];
+    let tasks = archivedTasks;
 
     // Search
     if (search.trim()) {
@@ -85,7 +90,7 @@ export default function ArchivePage() {
   const archivedBoards = useMemo(() => {
     const seen = new Set<string>();
     const boards: { id: string; name: string }[] = [];
-    for (const t of archivedTasks as Task[]) {
+    for (const t of archivedTasks) {
       if (!seen.has(t.listId)) {
         seen.add(t.listId);
         boards.push({ id: t.listId, name: listMap.get(t.listId) ?? "Deleted board" });
@@ -117,7 +122,7 @@ export default function ArchivePage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search archived tasks…"
-            className="w-full rounded-xl border border-foreground/10 bg-foreground/5 py-2.5 pl-9 pr-4 font-[family-name:var(--font-delius)] text-sm text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/30"
+            className="w-full rounded-xl border border-foreground/10 bg-foreground/5 py-2.5 pl-11 pr-4 font-[family-name:var(--font-delius)] text-sm text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/30"
           />
           {search && (
             <button
@@ -196,7 +201,7 @@ export default function ArchivePage() {
       ) : filtered.length === 0 ? (
         <div className="flex items-center justify-center rounded-xl border border-dashed border-foreground/15 py-24">
           <p className="font-[family-name:var(--font-delius)] text-sm text-foreground/40">
-            {(archivedTasks as Task[]).length === 0
+            {archivedTasks.length === 0
               ? "No archived tasks yet"
               : "No tasks match your filters"}
           </p>

@@ -53,7 +53,7 @@ export default function TaskDetailModal({ task, listName, open, onClose }: Props
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent showCloseButton={false} className="max-w-[700px] rounded-xl border-none bg-background p-0 shadow-2xl overflow-hidden">
+      <DialogContent showCloseButton={false} className="w-[1000px] max-w-[1000px] sm:max-w-[850px] rounded-xl border-none bg-background p-0 shadow-2xl overflow-hidden">
         <DialogTitle className="sr-only">{task.title}</DialogTitle>
 
         <div className="flex flex-col gap-0">

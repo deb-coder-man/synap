@@ -62,9 +62,9 @@ export default function ArchiveDetailModal({ task, lists, open, onClose }: Props
 
   function handleUnarchive() {
     if (originalList) {
-      // List still exists — restore directly
+      // List still exists — restore directly, also clear completed so it shows on board
       updateTask(
-        { id: t.id, data: { archived: false } },
+        { id: t.id, data: { archived: false, completed: false, completedAt: null } },
         { onSuccess: handleClose }
       );
     } else {

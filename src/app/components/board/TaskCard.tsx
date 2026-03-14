@@ -54,10 +54,11 @@ export default function TaskCard({ task, listColour, onOpen }: Props) {
   };
 
   const completedBg = task.completed
-    ? { backgroundColor: hexToRgba(listColour, 0.2) }
+    ? { backgroundColor: hexToRgba("000000", 0.1) }
     : {};
 
   const priority = PRIORITY_STYLES[task.priority];
+  const hasHours = task.estimatedHours != null;
 
   function toggleComplete(e: React.MouseEvent) {
     e.stopPropagation();
@@ -84,50 +85,50 @@ export default function TaskCard({ task, listColour, onOpen }: Props) {
         onClick={toggleComplete}
         className={`absolute right-3 top-3 flex size-[22px] shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
           task.completed
-            ? "border-foreground bg-foreground"
+            ? "border-green-500 bg-green-500 text-white"
             : "border-foreground/40 bg-transparent hover:border-foreground"
         }`}
         title={task.completed ? "Mark incomplete" : "Mark complete"}
       >
         {task.completed && (
-          <svg viewBox="0 0 10 8" className="h-[8px] w-[10px] fill-background">
+          <svg viewBox="0 0 10 8" className="h-[8px] w-[10px]">
             <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         )}
       </button>
 
+      {/* Due date — above title */}
+      {task.dueDate && (
+        <p className={`font-[family-name:var(--font-delius)] text-[10px] ${task.completed ? "text-white opacity-60" : "text-foreground/50"}`}>
+          Due {formatDate(task.dueDate)}
+        </p>
+      )}
+
       {/* Title — right padding to avoid overlapping the circle */}
       <p
-        className={`pr-8 font-[family-name:var(--font-delius)] text-sm text-foreground ${
-          task.completed ? "line-through opacity-50" : ""
-        }`}
+        className={`pr-8 font-[family-name:var(--font-delius)] text-sm ${task.completed ? "text-white line-through" : "text-foreground"}`}
       >
         {task.title}
       </p>
 
-      {/* Meta row: priority + due date */}
+      {/* Meta row: priority + hours chip (if present) */}
       <div className="flex items-center gap-[7px]">
-        {/* Priority badge */}
+        {/* Priority badge — full width when no hours chip */}
         <div
-          className={`flex h-[33px] w-[115px] items-center justify-center rounded-[7px] ${priority.bg} ${task.completed ? "opacity-50" : ""}`}
+          className={`flex h-[33px] items-center justify-center rounded-[7px] ${priority.bg} ${task.completed ? "opacity-50" : ""} ${hasHours ? "w-[115px]" : "w-full"}`}
         >
           <span className="font-[family-name:var(--font-delius)] text-[15px] text-foreground">
             {priority.label}
           </span>
         </div>
 
-        {/* Due date / estimated hours chip */}
-        {(task.dueDate || task.estimatedHours) && (
-          <div className={`flex h-[33px] w-[125px] items-center justify-between rounded-[7px] bg-background px-[10px] ring-1 ring-foreground/10 ${task.completed ? "opacity-50" : ""}`}>
-            <div className="flex flex-col font-[family-name:var(--font-delius)] text-foreground">
-              {task.estimatedHours && (
-                <span className="text-[12px]">{task.estimatedHours}h</span>
-              )}
-              {task.dueDate && (
-                <span className="text-[10px]">due: {formatDate(task.dueDate)}</span>
-              )}
-            </div>
-            <Clock size={18} className="shrink-0 text-foreground/60" />
+        {/* Estimated hours chip */}
+        {hasHours && (
+          <div className={`flex h-[33px] w-[125px] items-center gap-2 rounded-[7px] bg-background px-[10px] ring-1 ring-foreground/10 ${task.completed ? "opacity-50" : ""}`}>
+            <Clock size={14} className="shrink-0 text-foreground/60" />
+            <span className="font-[family-name:var(--font-delius)] text-[12px] text-foreground">
+              {task.estimatedHours}h
+            </span>
           </div>
         )}
       </div>

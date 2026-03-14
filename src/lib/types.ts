@@ -35,11 +35,26 @@ export type Task = {
   updatedAt: string;
 };
 
+export type UserProfile = {
+  id: string;
+  name: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  username: string | null;
+  email: string;
+  image: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type UserSettings = {
   id: string;
   backgroundColor: string;
   textColor: string;
   fontFamily: string;
+  pomodoroFocusDuration: number;
+  pomodoroShortBreak: number;
+  pomodoroLongBreak: number;
   userId: string;
   createdAt: string;
   updatedAt: string;
@@ -57,5 +72,9 @@ export type UpdateTaskInput = Partial<
 >;
 
 export type UpdateSettingsInput = Partial<
-  Pick<UserSettings, "backgroundColor" | "textColor" | "fontFamily">
+  Pick<UserSettings, "backgroundColor" | "textColor" | "fontFamily" | "pomodoroFocusDuration" | "pomodoroShortBreak" | "pomodoroLongBreak">
+>;
+
+export type UpdateUserInput = Partial<
+  Pick<UserProfile, "firstName" | "lastName" | "username" | "image">
 >;

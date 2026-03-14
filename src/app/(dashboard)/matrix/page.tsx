@@ -56,16 +56,16 @@ function saveQuadrants(quadrants: QuadrantConfig[]) {
 }
 
 // ─── Auto-placement algorithm ─────────────────────────────────────────────────
-// Urgent:    HIGH priority OR due within 7 days
-// Important: HIGH or MEDIUM priority
+// Urgent:    due within 3 days
+// Important: HIGH priority only
 
 function computePlacement(task: Task): { urgent: boolean; important: boolean } {
   const isDueSoon =
     task.dueDate !== null &&
-    new Date(task.dueDate) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    new Date(task.dueDate) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
   return {
-    urgent:    task.priority === "HIGH" || isDueSoon,
-    important: task.priority === "HIGH" || task.priority === "MEDIUM",
+    urgent:    isDueSoon,
+    important: task.priority === "HIGH",
   };
 }
 

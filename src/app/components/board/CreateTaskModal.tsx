@@ -58,7 +58,7 @@ export default function CreateTaskModal({ listId, listName, open, onClose }: Pro
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent showCloseButton={false} className="max-w-[600px] rounded-xl border-none bg-background p-0 shadow-2xl">
+      <DialogContent showCloseButton={false} className="max-w-[860px] rounded-xl border-none bg-background p-0 shadow-2xl">
         <DialogTitle className="sr-only">Add a task to {listName}</DialogTitle>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-0">
