@@ -1,19 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import {
-  DndContext,
-  DragOverlay,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  pointerWithin,
-  type DragStartEvent,
-  type DragEndEvent,
-} from "@dnd-kit/core";
 import { useTasks, useUpdateTask } from "@/app/hooks/useTasks";
 import MatrixQuadrant from "@/app/components/matrix/MatrixQuadrant";
-import MatrixTaskCard from "@/app/components/matrix/MatrixTaskCard";
 import TaskDetailModal from "@/app/components/board/TaskDetailModal";
 import type { Task } from "@/lib/types";
 
@@ -77,7 +66,6 @@ export default function MatrixPage() {
 
   const [quadrants, setQuadrants] = useState<QuadrantConfig[]>(DEFAULT_QUADRANTS);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [activeTask, setActiveTask]     = useState<Task | null>(null);
 
   // Load persisted quadrant titles/colours from localStorage
   useEffect(() => {
@@ -115,34 +103,6 @@ export default function MatrixPage() {
     );
   }
 
-  // ─── DnD ──────────────────────────────────────────────────────────────────
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  );
-
-  function onDragStart(event: DragStartEvent) {
-    const task = event.active.data.current?.task as Task | undefined;
-    if (task) setActiveTask(task);
-  }
-
-  function onDragEnd(event: DragEndEvent) {
-    setActiveTask(null);
-    const { active, over } = event;
-    if (!over) return;
-
-    const task = active.data.current?.task as Task | undefined;
-    if (!task) return;
-
-    const target = quadrants.find((q) => q.id === over.id);
-    if (!target) return;
-
-    // Only update if placement actually changed
-    if (task.urgent !== target.urgent || task.important !== target.important) {
-      updateTask({ id: task.id, data: { urgent: target.urgent, important: target.important } });
-    }
-  }
-
   // ─── Quadrant config updates ───────────────────────────────────────────────
 
   function updateQuadrantConfig(id: string, title: string, colour: string) {
@@ -154,12 +114,7 @@ export default function MatrixPage() {
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={pointerWithin}
-      onDragStart={onDragStart}
-      onDragEnd={onDragEnd}
-    >
+    <>
       <div className="grid grid-cols-1 gap-5 px-6 pb-6 sm:grid-cols-2 sm:grid-rows-2 sm:h-[calc(100vh-140px)]">
         {quadrants.map((q) => (
           <MatrixQuadrant
@@ -174,20 +129,12 @@ export default function MatrixPage() {
         ))}
       </div>
 
-      <DragOverlay>
-        {activeTask && (
-          <div className="w-64 rounded-lg bg-background shadow-xl opacity-90">
-            <MatrixTaskCard task={activeTask} onClick={() => {}} />
-          </div>
-        )}
-      </DragOverlay>
-
       <TaskDetailModal
         task={selectedTask}
         listName={taskQuadrantTitle(selectedTask)}
         open={!!selectedTask}
         onClose={() => setSelectedTask(null)}
       />
-    </DndContext>
+    </>
   );
 }

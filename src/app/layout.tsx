@@ -19,9 +19,9 @@ const delius = Delius({
 });
 
 export const metadata: Metadata = {
-  title: "Synap — Smart Todo Prioritisation",
+  title: "Synaptex — Prioritise. Focus. Complete",
   description:
-    "Synap helps you manage your time better with intelligent todo prioritisation, an action planner, and an Eisenhower matrix view.",
+    "Synaptex helps you manage your time better with intelligent todo prioritisation, an action planner, and an Eisenhower matrix view.",
 };
 
 export default function RootLayout({

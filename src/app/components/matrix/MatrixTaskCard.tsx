@@ -1,7 +1,5 @@
 "use client";
 
-import { useDraggable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
 import { Clock } from "lucide-react";
 import type { Task, Priority } from "@/lib/types";
 
@@ -23,22 +21,8 @@ type Props = {
 };
 
 export default function MatrixTaskCard({ task, onClick }: Props) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: task.id,
-    data: { task },
-  });
-
-  const style = {
-    transform: CSS.Translate.toString(transform),
-    opacity: isDragging ? 0.3 : 1,
-  };
-
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
       onClick={() => onClick(task)}
       className={`flex cursor-pointer flex-col gap-2 rounded-lg bg-background px-4 py-3 shadow-sm transition-shadow hover:shadow-md ${
         task.completed ? "opacity-50" : ""

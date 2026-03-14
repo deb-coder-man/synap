@@ -1,6 +1,5 @@
 "use client";
 
-import { useDroppable } from "@dnd-kit/core";
 import MasonryGrid from "masonry-grid";
 import MatrixTaskCard from "./MatrixTaskCard";
 import QuadrantOptionsMenu from "./QuadrantOptionsMenu";
@@ -23,8 +22,6 @@ export default function MatrixQuadrant({
   onTaskClick,
   onSaveConfig,
 }: Props) {
-  const { setNodeRef, isOver } = useDroppable({ id });
-
   return (
     <div
       className="flex flex-col overflow-hidden rounded-[15px]"
@@ -38,13 +35,8 @@ export default function MatrixQuadrant({
         <QuadrantOptionsMenu title={title} colour={colour} onSave={onSaveConfig} />
       </div>
 
-      {/* Drop zone — scrollable masonry task grid */}
-      <div
-        ref={setNodeRef}
-        className={`flex-1 overflow-y-auto px-4 pb-4 transition-colors ${
-          isOver ? "bg-black/10" : ""
-        }`}
-      >
+      {/* Scrollable task grid */}
+      <div className="flex-1 overflow-y-auto px-4 pb-4">
         {tasks.length === 0 ? (
           <div className="flex h-full items-center justify-center py-8">
             <p className="font-[family-name:var(--font-delius)] text-sm text-background/40">

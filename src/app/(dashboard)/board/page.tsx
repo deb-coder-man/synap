@@ -165,7 +165,7 @@ export default function BoardPage() {
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}
     >
-      <div className="flex min-h-[calc(100vh-120px)] items-start gap-8 overflow-x-auto px-6 pb-8 snap-x snap-mandatory scroll-smooth sm:gap-[25px]">
+      <div className="scrollbar-themed flex min-h-[calc(100vh-120px)] items-start gap-8 overflow-x-auto px-6 pb-8 snap-x snap-mandatory scroll-smooth sm:gap-[25px]">
         <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
           {lists.map((list) => (
             <ListColumn key={list.id} list={list} />

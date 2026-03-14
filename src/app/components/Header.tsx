@@ -58,7 +58,7 @@ export default function Header() {
             className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-foreground/50 transition-colors hover:text-foreground cursor-pointer"
             title="Theme"
           >
-            <span className="font-delius text-[10px] leading-none">Theme</span>
+         
             <Palette size={20} />
           </button>
           <button
@@ -66,7 +66,7 @@ export default function Header() {
             className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-foreground/50 transition-colors hover:text-foreground cursor-pointer"
             title="Settings"
           >
-            <span className="font-delius text-[10px] leading-none">Settings</span>
+          
             <Settings size={20} />
           </button>
         </div>
@@ -130,7 +130,6 @@ export default function Header() {
             className="flex items-center gap-2 px-4 py-3 rounded-t-[20px] border-2 -mb-[2px] font-delius text-sm text-foreground/60 border-transparent transition-colors hover:border-foreground/20 hover:text-foreground cursor-pointer"
             title="Theme"
           >
-            <span>Theme</span>
             <Palette size={16} />
           </button>
           <button
@@ -138,7 +137,6 @@ export default function Header() {
             className="flex items-center gap-2 px-4 py-3 rounded-t-[20px] border-2 -mb-[2px] font-delius text-sm text-foreground/60 border-transparent transition-colors hover:border-foreground/20 hover:text-foreground cursor-pointer"
             title="Settings"
           >
-            <span>Settings</span>
             <Settings size={16} />
           </button>
         </div>
