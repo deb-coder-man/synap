@@ -41,10 +41,21 @@ export async function updateList(
   return res.json();
 }
 
-// ─── DELETE — try this one yourself! ─────────────────────────────────────────
+// ─── DELETE — remove a list by id ────────────────────────────────────────────
 export async function deleteList(id: string): Promise<void> {
-  const res = await fetch(`${BASE}/${id}`);
+  const res = await fetch(`${BASE}/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error(`Failed to delete list ${id}`);
-  return res.json();
+}
+
+// ─── POST — batch reorder lists ───────────────────────────────────────────────
+export async function reorderLists(
+  items: { id: string; order: number }[]
+): Promise<void> {
+  const res = await fetch(`${BASE}/reorder`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(items),
+  });
+  if (!res.ok) throw new Error("Failed to reorder lists");
 }
 

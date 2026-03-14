@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { Search, X } from "lucide-react";
 import MasonryGrid from "masonry-grid";
-import {useTasks } from "@/app/hooks/useTasks";
+import { useArchivedTasks } from "@/app/hooks/useTasks";
 import { useLists } from "@/app/hooks/useLists";
 import ArchiveTaskCard from "@/app/components/archive/ArchiveTaskCard";
 import ArchiveDetailModal from "@/app/components/archive/ArchiveDetailModal";
@@ -19,13 +19,8 @@ const PRIORITY_LABELS: Record<Priority, string> = {
 type SortOption = "" | "date-asc" | "date-desc" | "hours-asc" | "hours-desc";
 
 export default function ArchivePage() {
-  const { data: allTasks = [] } = useTasks();
+  const { data: archivedTasks = [] } = useArchivedTasks();
   const { data: lists = [] } = useLists();
-  console.log(allTasks)
-  // Only work with archived tasks
-  const archivedTasks = (allTasks as Task[]).filter((t) => t.archived === true);
-
-  console.log(archivedTasks)
 
   const [search, setSearch] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<Priority[]>([]);

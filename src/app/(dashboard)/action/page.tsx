@@ -65,7 +65,10 @@ export default function ActionPage() {
     if (activeTasks.length === 0) return;
     setGenerating(true);
     try {
-      const orderedIds = await prioritiseTasks(hours, deepWork, activeTasks);
+      const slimTasks = activeTasks.map(({ id, title, priority, estimatedHours, dueDate }) => ({
+        id, title, priority, estimatedHours, dueDate,
+      }));
+      const orderedIds = await prioritiseTasks(hours, deepWork, slimTasks as typeof activeTasks);
 
       // Build ordered list from returned IDs, append any missing as fallback
       const ordered: string[] = [];
