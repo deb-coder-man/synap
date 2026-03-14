@@ -84,7 +84,7 @@ export default function ListColumn({ list }: Props) {
         {/* Add a card button */}
         <button
           onClick={() => setTaskModalOpen(true)}
-          className="mt-2 flex items-center justify-between rounded-[10px] px-[10px] py-[6px] font-[family-name:var(--font-delius)] text-[20px] text-background transition-colors hover:bg-background/15 hover:text-background"
+          className="mt-1 flex items-center gap-2 rounded-[10px] px-[10px] py-[8px] font-[family-name:var(--font-delius)] text-[16px] text-background/70 transition-all hover:bg-background/15 hover:text-background"
         >
           <span>Add a card</span>
           <Plus size={24} />

@@ -203,3 +203,34 @@ body {
     @apply font-sans;
   }
 }
+/* ─── Selection colour ────────────────────────────────────────────────────── */
+
+::selection {
+  background-color: rgb(31 26 23 / 0.12);
+}
+
+/* ─── Auth page utilities (always cream-themed, never overridden by UserSettings) ── */
+
+.auth-input {
+  @apply w-full rounded-xl border px-4 py-3 font-[family-name:var(--font-delius)] text-sm outline-none transition-[border-color,box-shadow] placeholder:opacity-30;
+  background-color: #fdfaf5;
+  border-color: rgb(31 26 23 / 0.13);
+  color: #1f1a17;
+}
+.auth-input:focus {
+  border-color: rgb(31 26 23 / 0.4);
+  box-shadow: 0 0 0 3px rgb(31 26 23 / 0.06);
+}
+
+.auth-submit-btn {
+  @apply w-full cursor-pointer rounded-xl py-3 font-[family-name:var(--font-delius)] text-sm font-medium transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-50;
+  background-color: #1f1a17;
+  color: #f6f0e6;
+}
+
+.auth-oauth-btn {
+  @apply flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl border px-4 py-3 font-[family-name:var(--font-delius)] text-sm font-medium transition-opacity hover:opacity-80;
+  border-color: rgb(31 26 23 / 0.13);
+  background-color: #ffffff;
+  color: #1f1a17;
+}

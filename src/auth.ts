@@ -6,12 +6,11 @@ import Credentials from "next-auth/providers/credentials";
 import Resend from "next-auth/providers/resend";
 import bcrypt from "bcryptjs";
 import { prisma } from "./lib/prisma";
+import { authConfig } from "./auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   adapter: PrismaAdapter(prisma),
-
-  // JWT strategy allows Credentials provider alongside OAuth & magic links
-  session: { strategy: "jwt" },
 
   providers: [
     Google({
@@ -51,20 +50,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-
-  callbacks: {
-    jwt({ token, user }) {
-      if (user) token.id = user.id!;
-      return token;
-    },
-    session({ session, token }) {
-      session.user.id = token.id as string;
-      return session;
-    },
-  },
-
-  pages: {
-    signIn: "/login",
-    error: "/login",
-  },
 });

@@ -185,7 +185,7 @@ export default function BoardPage() {
       <DragOverlay>
         {activeList && <ListColumn list={activeList} />}
         {activeTask && (
-          <div className="w-[280px] rounded-lg bg-background shadow-xl opacity-90">
+          <div className="w-[280px] scale-[1.03] rounded-lg bg-background shadow-2xl ring-1 ring-foreground/5">
             <TaskCard task={activeTask} listColour="#f6f0e6" onOpen={() => {}} />
           </div>
         )}

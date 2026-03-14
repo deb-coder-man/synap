@@ -29,30 +29,18 @@ export default async function LoginPage({ searchParams }: Props) {
           height={160}
           className="object-contain"
         />
-        <p
-          className="font-[family-name:var(--font-delius)] text-lg"
-          style={{ color: "#1f1a17" }}
-        >
+        <p className="font-[family-name:var(--font-delius)] text-lg text-[#1f1a17]">
           Prioritise. Focus. Complete.
         </p>
-        <p
-          className="-mt-2 font-[family-name:var(--font-delius)] text-sm"
-          style={{ color: "#1f1a1766" }}
-        >
+        <p className="-mt-2 font-[family-name:var(--font-delius)] text-sm text-[#1f1a17]/40">
           Sign in to your account
         </p>
       </div>
 
       {/* Card */}
-      <div
-        className="rounded-2xl p-8 shadow-sm"
-        style={{ backgroundColor: "#ffffff", border: "1px solid #1f1a1715" }}
-      >
+      <div className="rounded-2xl border border-[#1f1a17]/10 bg-white p-8 shadow-sm">
         {errorMessage && (
-          <div
-            className="mb-6 rounded-xl border px-4 py-3 font-[family-name:var(--font-delius)] text-sm"
-            style={{ borderColor: "#e53e3e55", backgroundColor: "#fff5f5", color: "#c53030" }}
-          >
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 font-[family-name:var(--font-delius)] text-sm text-red-700">
             {errorMessage}
           </div>
         )}
@@ -66,15 +54,7 @@ export default async function LoginPage({ searchParams }: Props) {
               await signIn("google", { redirectTo: "/board" });
             }}
           >
-            <button
-              type="submit"
-              className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl border px-4 py-3 font-[family-name:var(--font-delius)] text-sm font-medium transition-colors hover:opacity-80"
-              style={{
-                backgroundColor: "#ffffff",
-                borderColor: "#1f1a1720",
-                color: "#1f1a17",
-              }}
-            >
+            <button type="submit" className="auth-oauth-btn">
               {/* Google colour logo */}
               <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -95,12 +75,8 @@ export default async function LoginPage({ searchParams }: Props) {
           >
             <button
               type="submit"
-              className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl border px-4 py-3 font-[family-name:var(--font-delius)] text-sm font-medium transition-colors hover:opacity-80"
-              style={{
-                backgroundColor: "#24292f",
-                borderColor: "transparent",
-                color: "#ffffff",
-              }}
+              className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl px-4 py-3 font-[family-name:var(--font-delius)] text-sm font-medium text-white transition-opacity hover:opacity-80"
+              style={{ backgroundColor: "#24292f" }}
             >
               {/* GitHub logo */}
               <svg width="18" height="18" viewBox="0 0 24 24" fill="#ffffff" xmlns="http://www.w3.org/2000/svg">
@@ -113,26 +89,20 @@ export default async function LoginPage({ searchParams }: Props) {
 
         {/* Divider */}
         <div className="my-6 flex items-center gap-3">
-          <div className="h-px flex-1" style={{ backgroundColor: "#1f1a1715" }} />
-          <span className="font-[family-name:var(--font-delius)] text-xs" style={{ color: "#1f1a1750" }}>
-            or
-          </span>
-          <div className="h-px flex-1" style={{ backgroundColor: "#1f1a1715" }} />
+          <div className="h-px flex-1 bg-[#1f1a17]/10" />
+          <span className="font-[family-name:var(--font-delius)] text-xs text-[#1f1a17]/30">or</span>
+          <div className="h-px flex-1 bg-[#1f1a17]/10" />
         </div>
 
         {/* Email form (client component — password + magic link tabs) */}
         <LoginEmailForm />
 
         {/* Sign up link */}
-        <p
-          className="mt-6 text-center font-[family-name:var(--font-delius)] text-sm"
-          style={{ color: "#1f1a1766" }}
-        >
+        <p className="mt-6 text-center font-[family-name:var(--font-delius)] text-sm text-[#1f1a17]/40">
           Don&apos;t have an account?{" "}
           <a
             href="/register"
-            className="cursor-pointer font-medium hover:underline"
-            style={{ color: "#1f1a17" }}
+            className="cursor-pointer font-medium text-[#1f1a17] hover:underline"
           >
             Sign up
           </a>

@@ -24,7 +24,7 @@ export default function MatrixTaskCard({ task, onClick }: Props) {
   return (
     <div
       onClick={() => onClick(task)}
-      className={`flex cursor-pointer flex-col gap-2 rounded-lg bg-background px-4 py-3 shadow-sm transition-shadow hover:shadow-md ${
+      className={`flex cursor-pointer flex-col gap-2 rounded-lg bg-background px-4 py-3 shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md ${
         task.completed ? "opacity-50" : ""
       }`}
     >
@@ -37,10 +37,10 @@ export default function MatrixTaskCard({ task, onClick }: Props) {
       </p>
 
       <div className="flex items-center gap-2">
-        <div className={`h-2 w-2 shrink-0 rounded-full ${PRIORITY_DOT[task.priority]}`} />
+        <div className={`h-2.5 w-2.5 shrink-0 rounded-full ${PRIORITY_DOT[task.priority]}`} />
         {task.dueDate && (
           <span className="flex items-center gap-1 font-[family-name:var(--font-delius)] text-[11px] text-foreground/50">
-            <Clock size={10} />
+            <Clock size={11} />
             {formatDate(task.dueDate)}
           </span>
         )}

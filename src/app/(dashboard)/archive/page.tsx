@@ -190,12 +190,18 @@ export default function ArchivePage() {
 
       {/* ── Grid ── */}
       {filtered.length === 0 ? (
-        <div className="flex items-center justify-center rounded-xl border border-dashed border-foreground/15 py-24">
+        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-foreground/15 py-24">
           <p className="font-[family-name:var(--font-delius)] text-sm text-foreground/40">
-            {archivedTasks.length === 0
-              ? "No archived tasks yet"
-              : "No tasks match your filters"}
+            {archivedTasks.length === 0 ? "No archived tasks yet" : "No tasks match your filters"}
           </p>
+          {archivedTasks.length > 0 && (
+            <button
+              onClick={clearFilters}
+              className="font-[family-name:var(--font-delius)] text-xs text-foreground/30 underline hover:text-foreground/60"
+            >
+              Clear filters
+            </button>
+          )}
         </div>
       ) : (
         <MasonryGrid gap="10px" minWidth={220}>
