@@ -17,13 +17,14 @@ import {
   horizontalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
-import { Plus } from "lucide-react";
+import { Plus, LayoutGrid, List as ListIcon } from "lucide-react";
 import { useLists, listKeys } from "@/app/hooks/useLists";
 import { useQueryClient } from "@tanstack/react-query";
 import { reorderLists } from "@/lib/api/lists";
 import { reorderTasks } from "@/lib/api/tasks";
 import ListColumn from "@/app/components/board/ListColumn";
 import TaskCard from "@/app/components/board/TaskCard";
+import TaskListView from "@/app/components/board/TaskListView";
 import CreateListModal from "@/app/components/board/CreateListModal";
 import type { List, Task } from "@/lib/types";
 
@@ -36,8 +37,9 @@ export default function BoardPage() {
   const queryClient = useQueryClient();
 
   const [createListOpen, setCreateListOpen] = useState(false);
-  const [activeList, setActiveList] = useState<ListWithTasks | null>(null);
-  const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [activeList, setActiveList]         = useState<ListWithTasks | null>(null);
+  const [activeTask, setActiveTask]         = useState<Task | null>(null);
+  const [viewMode, setViewMode]             = useState<"grid" | "list">("grid");
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -71,7 +73,7 @@ export default function BoardPage() {
         queryClient.setQueryData(listKeys.all, (old: ListWithTasks[]) =>
           old?.map((list) => {
             if (list.id === task.listId) {
-              return { ...list, tasks: list.tasks.filter((t) => t.id !== task.id) };
+              return { ...list, tasks: list.tasks.filter((t: Task) => t.id !== task.id) };
             }
             if (list.id === over.id) {
               return { ...list, tasks: [...list.tasks, { ...task, listId: String(over.id) }] };
@@ -126,10 +128,10 @@ export default function BoardPage() {
       const targetList = lists.find((l) => l.id === targetListId);
       if (!targetList) return;
 
-      const tasks        = targetList.tasks;
-      const overTaskId   = overData?.type === "task" ? String(over.id) : null;
-      const overIndex    = overTaskId ? tasks.findIndex((t) => t.id === overTaskId) : tasks.length;
-      const activeIndex  = tasks.findIndex((t) => t.id === movedTask.id);
+      const tasks       = targetList.tasks;
+      const overTaskId  = overData?.type === "task" ? String(over.id) : null;
+      const overIndex   = overTaskId ? tasks.findIndex((t: Task) => t.id === overTaskId) : tasks.length;
+      const activeIndex = tasks.findIndex((t: Task) => t.id === movedTask.id);
 
       const newTasks: Task[] =
         activeIndex !== -1
@@ -143,7 +145,11 @@ export default function BoardPage() {
       queryClient.setQueryData(
         listKeys.all,
         lists.map((l) =>
-          l.id === targetListId ? { ...l, tasks: newTasks } : l.id === movedTask.listId ? { ...l, tasks: l.tasks.filter((t) => t.id !== movedTask.id) } : l
+          l.id === targetListId
+            ? { ...l, tasks: newTasks }
+            : l.id === movedTask.listId
+              ? { ...l, tasks: l.tasks.filter((t: Task) => t.id !== movedTask.id) }
+              : l
         )
       );
 
@@ -164,22 +170,65 @@ export default function BoardPage() {
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}
     >
-      <div className="scrollbar-themed flex min-h-[calc(100vh-120px)] items-start gap-8 overflow-x-auto px-6 pb-8 snap-x snap-mandatory scroll-smooth sm:gap-[25px]">
-        <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
-          {lists.map((list, i) => (
-            <ListColumn key={list.id} list={list} order={i} />
-          ))}
-        </SortableContext>
-
-        {/* Add a List */}
+      {/* View toggle */}
+      <div className="flex items-center justify-start gap-2 px-6 pb-2 pt-1">
         <button
-          onClick={() => setCreateListOpen(true)}
-          className="flex w-[calc(100vw-3rem)] shrink-0 snap-center items-center justify-between rounded-[15px] bg-foreground px-[23px] py-[19px] font-[family-name:var(--font-delius)] text-[20px] text-background transition-all hover:opacity-80 active:scale-[0.97] sm:w-[328px] sm:snap-start"
+          onClick={() => setViewMode("grid")}
+          title="Grid view"
+          className={`rounded-lg p-2 transition-colors ${
+            viewMode === "grid"
+              ? "bg-foreground/10 text-foreground"
+              : "text-foreground/35 hover:bg-foreground/8 hover:text-foreground/70"
+          }`}
         >
-          <span>Add a List</span>
-          <Plus size={28} />
+          <LayoutGrid size={18} />
+        </button>
+        <button
+          onClick={() => setViewMode("list")}
+          title="List view"
+          className={`rounded-lg p-2 transition-colors ${
+            viewMode === "list"
+              ? "bg-foreground/10 text-foreground"
+              : "text-foreground/35 hover:bg-foreground/8 hover:text-foreground/70"
+          }`}
+        >
+          <ListIcon size={18} />
         </button>
       </div>
+
+      {viewMode === "grid" ? (
+        <div className="scrollbar-themed flex min-h-[calc(100vh-150px)] items-start gap-8 overflow-x-auto px-6 pb-8 snap-x snap-mandatory scroll-smooth sm:gap-[25px]">
+          <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
+            {lists.map((list, i) => (
+              <ListColumn key={list.id} list={list} order={i} />
+            ))}
+          </SortableContext>
+
+          {/* Add a List */}
+          <button
+            onClick={() => setCreateListOpen(true)}
+            className="flex w-[calc(100vw-3rem)] shrink-0 snap-center items-center justify-between rounded-[15px] bg-foreground px-[23px] py-[19px] font-[family-name:var(--font-delius)] text-[20px] text-background transition-all hover:opacity-80 active:scale-[0.97] sm:w-[328px] sm:snap-start"
+          >
+            <span>Add a List</span>
+            <Plus size={28} />
+          </button>
+        </div>
+      ) : (
+        <div className="min-h-[calc(100vh-150px)]">
+          <TaskListView lists={lists} />
+
+          {/* Add a List — below the list view */}
+          <div className="px-4 pb-8 sm:px-6">
+            <button
+              onClick={() => setCreateListOpen(true)}
+              className="flex w-full items-center justify-between rounded-[15px] bg-foreground px-[23px] py-[16px] font-[family-name:var(--font-delius)] text-[18px] text-background transition-all hover:opacity-80 active:scale-[0.97]"
+            >
+              <span>Add a Group</span>
+              <Plus size={24} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Drag overlays */}
       <DragOverlay>
