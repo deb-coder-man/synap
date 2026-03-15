@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,12 +12,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { useCreateTask } from "@/app/hooks/useTasks";
 import type { Priority } from "@/lib/types";
 
-type Props = {
-  listId: string;
-  listName: string;
-  open: boolean;
-  onClose: () => void;
-};
+type ListOption = { id: string; name: string; colour: string };
+
+// Called from a list column: pass listId + listName (fixed)
+// Called from list view: pass lists array (user picks)
+type Props =
+  | { listId: string; listName: string; lists?: never; open: boolean; onClose: () => void }
+  | { listId?: never; listName?: never; lists: ListOption[]; open: boolean; onClose: () => void };
 
 const PRIORITIES: { value: Priority; label: string; bg: string }[] = [
   { value: "LOW",    label: "Low",    bg: "bg-priority-low"    },
@@ -25,22 +26,28 @@ const PRIORITIES: { value: Priority; label: string; bg: string }[] = [
   { value: "HIGH",   label: "High",   bg: "bg-priority-high"   },
 ];
 
-export default function CreateTaskModal({ listId, listName, open, onClose }: Props) {
-  const [title, setTitle]           = useState("");
-  const [description, setDesc]      = useState("");
-  const [priority, setPriority]     = useState<Priority>("LOW");
-  const [dueDate, setDueDate]       = useState("");
-  const [estHours, setEstHours]     = useState("");
+export default function CreateTaskModal({ listId, listName, lists, open, onClose }: Props) {
+  const [title, setTitle]               = useState("");
+  const [description, setDesc]          = useState("");
+  const [priority, setPriority]         = useState<Priority>("LOW");
+  const [dueDate, setDueDate]           = useState("");
+  const [estHours, setEstHours]         = useState("");
+  const [selectedListId, setSelectedListId] = useState<string>("");
 
   const { mutate: createTask, isPending } = useCreateTask();
 
+  // Resolve the effective listId and name
+  const effectiveListId   = listId ?? selectedListId ?? (lists?.[0]?.id ?? "");
+  const effectiveListName = listName ?? lists?.find((l) => l.id === effectiveListId)?.name ?? "";
+  const selectedListColour = lists?.find((l) => l.id === effectiveListId)?.colour;
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!title.trim() || !effectiveListId) return;
 
     createTask(
       {
-        listId,
+        listId: effectiveListId,
         title: title.trim(),
         description: description.trim() || undefined,
         priority,
@@ -49,7 +56,7 @@ export default function CreateTaskModal({ listId, listName, open, onClose }: Pro
       },
       {
         onSuccess: () => {
-          setTitle(""); setDesc(""); setPriority("LOW"); setDueDate(""); setEstHours("");
+          setTitle(""); setDesc(""); setPriority("LOW"); setDueDate(""); setEstHours(""); setSelectedListId("");
           onClose();
         },
       }
@@ -64,9 +71,37 @@ export default function CreateTaskModal({ listId, listName, open, onClose }: Pro
         <form onSubmit={handleSubmit} className="flex flex-col gap-0 overflow-hidden flex-1 min-h-0">
           {/* Header */}
           <div className="flex shrink-0 items-center justify-between border-b border-foreground/10 px-4 py-4 sm:px-8 sm:py-5">
-            <span className="font-[family-name:var(--font-delius)] text-xl font-bold text-foreground sm:text-2xl">
-              {listName}
-            </span>
+            {lists ? (
+              /* List selector — shown when opened from list view */
+              <div className="relative flex items-center gap-2">
+                {selectedListColour && (
+                  <div
+                    className="h-3 w-3 shrink-0 rounded-full"
+                    style={{ backgroundColor: selectedListColour }}
+                  />
+                )}
+                <select
+                  value={effectiveListId}
+                  onChange={(e) => setSelectedListId(e.target.value)}
+                  required
+                  className="cursor-pointer appearance-none bg-transparent font-[family-name:var(--font-delius)] text-xl font-bold text-foreground outline-none sm:text-2xl"
+                >
+                  <option value="" disabled>
+                    Choose group…
+                  </option>
+                  {lists.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {l.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={16} className="pointer-events-none shrink-0 text-foreground/40" />
+              </div>
+            ) : (
+              <span className="font-[family-name:var(--font-delius)] text-xl font-bold text-foreground sm:text-2xl">
+                {effectiveListName}
+              </span>
+            )}
             <button type="button" onClick={onClose} className="text-foreground/60 hover:text-foreground">
               <X size={24} />
             </button>
@@ -143,7 +178,7 @@ export default function CreateTaskModal({ listId, listName, open, onClose }: Pro
             {/* Save button */}
             <button
               type="submit"
-              disabled={!title.trim() || isPending}
+              disabled={!title.trim() || !effectiveListId || isPending}
               className="ml-auto rounded-lg bg-foreground px-6 py-2 font-[family-name:var(--font-delius)] text-background hover:opacity-90 disabled:opacity-40"
             >
               {isPending ? "Adding…" : "Add task"}
