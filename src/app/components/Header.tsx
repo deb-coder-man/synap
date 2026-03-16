@@ -9,6 +9,7 @@ import { useThemeStore } from "@/app/stores/themeStore";
 import { ClipboardList, Layers, Zap, Archive } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { getLists } from "@/lib/api/lists";
@@ -127,6 +128,11 @@ export default function Header() {
 
           {/* Spacer */}
           <div className="flex-1" />
+
+          {/* Logo */}
+          <div className="flex items-center px-4 pb-1">
+            <Image src="/Synaptex-Logo.png" alt="Synaptex" width={32} height={32} className="object-contain" />
+          </div>
 
           {/* Settings icons */}
           <button

@@ -17,6 +17,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { useState } from "react";
 import { useTasks, useUpdateTask } from "@/app/hooks/useTasks";
 import { useActionStore } from "@/app/stores/actionStore";
@@ -80,6 +81,7 @@ export default function ActionPage() {
       }
       setOrderedTaskIds(ordered);
       setGenerated(true);
+      toast.success("Work plan generated");
     } catch (err) {
       console.error("Generate error:", err);
       // Fallback: sort by priority then due date
@@ -94,6 +96,7 @@ export default function ActionPage() {
         .map((t) => t.id);
       setOrderedTaskIds(fallback);
       setGenerated(true);
+      toast.success("Work plan generated");
     } finally {
       setGenerating(false);
     }
