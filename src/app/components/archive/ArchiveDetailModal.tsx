@@ -5,6 +5,7 @@ import { ArchiveRestore, Trash2, Clock, AlertCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useUpdateTask, useDeleteTask } from "@/app/hooks/useTasks";
 import { useCreateList } from "@/app/hooks/useLists";
+import { toast } from "sonner";
 import type { Task, List, Priority } from "@/lib/types";
 
 const PRIORITY_COLOURS: Record<Priority, string> = {
@@ -62,10 +63,9 @@ export default function ArchiveDetailModal({ task, lists, open, onClose }: Props
 
   function handleUnarchive() {
     if (originalList) {
-      // List still exists — restore directly, also clear completed so it shows on board
       updateTask(
         { id: t.id, data: { archived: false, completed: false, completedAt: null } },
-        { onSuccess: handleClose }
+        { onSuccess: () => { toast.success("Task restored"); handleClose(); } }
       );
     } else {
       // List was deleted — need to pick/create one
@@ -85,7 +85,7 @@ export default function ArchiveDetailModal({ task, lists, open, onClose }: Props
           onSuccess: (newList) => {
             updateTask(
               { id: t.id, data: { archived: false, listId: newList.id } },
-              { onSuccess: handleClose }
+              { onSuccess: () => { toast.success("Task restored"); handleClose(); } }
             );
           },
         }
@@ -93,13 +93,13 @@ export default function ArchiveDetailModal({ task, lists, open, onClose }: Props
     } else {
       updateTask(
         { id: t.id, data: { archived: false, listId: selectedListId } },
-        { onSuccess: handleClose }
+        { onSuccess: () => { toast.success("Task restored"); handleClose(); } }
       );
     }
   }
 
   function handleDelete() {
-    deleteTask(t.id, { onSuccess: handleClose });
+    deleteTask(t.id, { onSuccess: () => { toast.success("Task deleted"); handleClose(); } });
   }
 
   return (

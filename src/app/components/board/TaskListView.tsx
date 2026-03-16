@@ -8,6 +8,8 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useUpdateTask } from "@/app/hooks/useTasks";
+import { toast } from "sonner";
 import type { List, Task, Priority } from "@/lib/types";
 import CreateTaskModal from "./CreateTaskModal";
 import TaskDetailModal from "./TaskDetailModal";
@@ -37,6 +39,8 @@ function TaskListRow({
   list: List;
   onOpen: (task: Task) => void;
 }) {
+  const { mutate: updateTask } = useUpdateTask();
+
   const {
     attributes,
     listeners,
@@ -48,6 +52,16 @@ function TaskListRow({
 
   const priority = PRIORITY_STYLES[task.priority];
 
+  function toggleComplete(e: React.MouseEvent) {
+    e.stopPropagation();
+    const completing = !task.completed;
+    updateTask({
+      id: task.id,
+      data: { completed: completing, completedAt: completing ? new Date().toISOString() : null },
+    });
+    toast.success(completing ? "Task completed" : "Marked incomplete");
+  }
+
   return (
     <div
       ref={setNodeRef}
@@ -56,7 +70,7 @@ function TaskListRow({
         transition,
         opacity: isDragging ? 0.4 : 1,
       }}
-      className={`flex items-center gap-3 rounded-lg bg-background px-3 py-3 shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md sm:px-4 ${
+      className={`group flex items-center gap-3 rounded-lg bg-background px-3 py-3 shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md sm:px-4 ${
         task.completed ? "opacity-60" : ""
       }`}
     >
@@ -79,21 +93,18 @@ function TaskListRow({
         {task.title}
       </p>
 
-      {/* Group chip */}
+      {/* Group chip — desktop */}
       <div
         className="hidden shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 sm:flex"
         style={{ backgroundColor: list.colour + "28" }}
       >
-        <div
-          className="h-2 w-2 shrink-0 rounded-full"
-          style={{ backgroundColor: list.colour }}
-        />
+        <div className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: list.colour }} />
         <span className="max-w-[80px] truncate font-[family-name:var(--font-delius)] text-xs text-foreground/70">
           {list.name}
         </span>
       </div>
 
-      {/* Mobile: group dot only */}
+      {/* Group dot — mobile */}
       <div
         className="h-2 w-2 shrink-0 rounded-full sm:hidden"
         style={{ backgroundColor: list.colour }}
@@ -106,9 +117,7 @@ function TaskListRow({
           task.completed ? "opacity-40" : ""
         }`}
       >
-        <span className="font-[family-name:var(--font-delius)] text-[11px]">
-          {priority.label}
-        </span>
+        <span className="font-[family-name:var(--font-delius)] text-[11px]">{priority.label}</span>
       </div>
 
       {/* Hours */}
@@ -129,6 +138,34 @@ function TaskListRow({
           </span>
         )}
       </div>
+
+      {/* Description */}
+      <div className="hidden w-48 shrink-0 sm:block lg:w-64">
+        {task.description ? (
+          <span className="truncate font-[family-name:var(--font-delius)] text-xs text-foreground/40 block">
+            {task.description}
+          </span>
+        ) : (
+          <span className="font-[family-name:var(--font-delius)] text-xs text-foreground/20 italic">—</span>
+        )}
+      </div>
+
+      {/* Complete circle */}
+      <button
+        onClick={toggleComplete}
+        className={`ml-1 flex size-[20px] shrink-0 items-center justify-center rounded-full border-2 transition-all active:scale-75 ${
+          task.completed
+            ? "border-green-500 bg-green-500 text-white"
+            : "border-foreground/20 bg-transparent opacity-0 group-hover:opacity-100 hover:border-green-400 hover:bg-green-50"
+        }`}
+        title={task.completed ? "Mark incomplete" : "Mark complete"}
+      >
+        {task.completed && (
+          <svg viewBox="0 0 10 8" className="h-[7px] w-[9px]">
+            <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+      </button>
     </div>
   );
 }
@@ -140,13 +177,13 @@ type Props = {
 };
 
 export default function TaskListView({ lists }: Props) {
-  const [addTaskOpen, setAddTaskOpen] = useState(false);
+  const [addTaskOpen, setAddTaskOpen]   = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
-  const allTasks      = lists.flatMap((l) => l.tasks);
-  const activeTasks   = allTasks.filter((t) => !t.completed);
+  const allTasks       = lists.flatMap((l) => l.tasks);
+  const activeTasks    = allTasks.filter((t) => !t.completed);
   const completedTasks = allTasks.filter((t) => t.completed);
-  const taskIds       = [...activeTasks, ...completedTasks].map((t) => t.id);
+  const taskIds        = [...activeTasks, ...completedTasks].map((t) => t.id);
 
   function getList(task: Task): List {
     return lists.find((l) => l.id === task.listId) ?? lists[0];
@@ -162,50 +199,30 @@ export default function TaskListView({ lists }: Props) {
         {/* Column headers — desktop only */}
         <div className="mb-2 hidden items-center gap-3 sm:flex">
           <div className="w-4 shrink-0" />
-          <span className="flex-1 font-[family-name:var(--font-delius)] text-[10px] uppercase tracking-wider text-foreground/35">
-            Task
-          </span>
-          <span className="w-[108px] font-[family-name:var(--font-delius)] text-[10px] uppercase tracking-wider text-foreground/35">
-            Group
-          </span>
-          <span className="w-[72px] font-[family-name:var(--font-delius)] text-[10px] uppercase tracking-wider text-foreground/35">
-            Priority
-          </span>
-          <span className="w-14 text-right font-[family-name:var(--font-delius)] text-[10px] uppercase tracking-wider text-foreground/35">
-            Hours
-          </span>
-          <span className="w-16 text-right font-[family-name:var(--font-delius)] text-[10px] uppercase tracking-wider text-foreground/35">
-            Due
-          </span>
+          <span className="flex-1 font-[family-name:var(--font-delius)] text-[10px] uppercase tracking-wider text-foreground/35">Task</span>
+          <span className="w-[108px] font-[family-name:var(--font-delius)] text-[10px] uppercase tracking-wider text-foreground/35">Group</span>
+          <span className="w-[72px] font-[family-name:var(--font-delius)] text-[10px] uppercase tracking-wider text-foreground/35">Priority</span>
+          <span className="flex w-14 justify-end font-[family-name:var(--font-delius)] text-[10px] uppercase tracking-wider text-foreground/35">Hours</span>
+          <span className="flex w-16 justify-end font-[family-name:var(--font-delius)] text-[10px] uppercase tracking-wider text-foreground/35">Due</span>
+          <span className="w-48 font-[family-name:var(--font-delius)] text-[10px] uppercase tracking-wider text-foreground/35 lg:w-64">Description</span>
+          <div className="ml-1 w-5 shrink-0" />
         </div>
 
         <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
           <div className="flex flex-col gap-2">
             {activeTasks.map((task) => (
-              <TaskListRow
-                key={task.id}
-                task={task}
-                list={getList(task)}
-                onOpen={setSelectedTask}
-              />
+              <TaskListRow key={task.id} task={task} list={getList(task)} onOpen={setSelectedTask} />
             ))}
 
             {completedTasks.length > 0 && (
               <>
                 <div className="my-2 flex items-center gap-3">
                   <div className="h-px flex-1 bg-foreground/10" />
-                  <span className="font-[family-name:var(--font-delius)] text-[10px] uppercase tracking-wider text-foreground/30">
-                    Completed
-                  </span>
+                  <span className="font-[family-name:var(--font-delius)] text-[10px] uppercase tracking-wider text-foreground/30">Completed</span>
                   <div className="h-px flex-1 bg-foreground/10" />
                 </div>
                 {completedTasks.map((task) => (
-                  <TaskListRow
-                    key={task.id}
-                    task={task}
-                    list={getList(task)}
-                    onOpen={setSelectedTask}
-                  />
+                  <TaskListRow key={task.id} task={task} list={getList(task)} onOpen={setSelectedTask} />
                 ))}
               </>
             )}
@@ -228,7 +245,6 @@ export default function TaskListView({ lists }: Props) {
         </button>
       </div>
 
-      {/* Modals */}
       <CreateTaskModal
         lists={lists}
         open={addTaskOpen}

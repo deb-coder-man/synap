@@ -5,6 +5,7 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  MeasuringStrategy,
   useSensor,
   useSensors,
   closestCorners,
@@ -23,7 +24,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { reorderLists } from "@/lib/api/lists";
 import { reorderTasks } from "@/lib/api/tasks";
 import ListColumn from "@/app/components/board/ListColumn";
-import TaskCard from "@/app/components/board/TaskCard";
 import TaskListView from "@/app/components/board/TaskListView";
 import CreateListModal from "@/app/components/board/CreateListModal";
 import type { List, Task } from "@/lib/types";
@@ -166,6 +166,7 @@ export default function BoardPage() {
     <DndContext
       sensors={sensors}
       collisionDetection={closestCorners}
+      measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}
@@ -230,12 +231,24 @@ export default function BoardPage() {
         </div>
       )}
 
-      {/* Drag overlays */}
-      <DragOverlay>
-        {activeList && <ListColumn list={activeList} />}
+      {/* Drag overlays — plain previews without useSortable to avoid double-transform offset */}
+      <DragOverlay dropAnimation={null}>
+        {activeList && (
+          <div
+            className="flex w-[calc(100vw-3rem)] shrink-0 flex-col gap-[13px] rounded-[10px] px-[15px] py-[17px] opacity-90 shadow-2xl sm:w-[300px]"
+            style={{ backgroundColor: activeList.colour }}
+          >
+            <p className="font-[family-name:var(--font-delius)] text-[20px] text-background">
+              {activeList.name}
+            </p>
+            <div className="text-background/50 font-[family-name:var(--font-delius)] text-sm">
+              {activeList.tasks.length} task{activeList.tasks.length !== 1 ? "s" : ""}
+            </div>
+          </div>
+        )}
         {activeTask && (
-          <div className="w-[280px] scale-[1.03] rounded-lg bg-background shadow-2xl ring-1 ring-foreground/5">
-            <TaskCard task={activeTask} listColour="#f6f0e6" onOpen={() => {}} />
+          <div className="w-[280px] scale-[1.03] rounded-lg bg-background px-[17px] py-[15px] shadow-2xl ring-1 ring-foreground/5">
+            <p className="font-[family-name:var(--font-delius)] text-sm text-foreground">{activeTask.title}</p>
           </div>
         )}
       </DragOverlay>

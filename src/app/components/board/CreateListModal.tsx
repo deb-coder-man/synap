@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useCreateList, useUpdateList } from "@/app/hooks/useLists";
+import { toast } from "sonner";
 import type { List } from "@/lib/types";
 
 // Pre-defined colour palette (from Figma)
@@ -54,15 +55,19 @@ export default function CreateListModal({ open, onClose, editingList, nextOrder 
     e.preventDefault();
     if (!name.trim()) return;
     if (editingList) {
-      updateList({ id: editingList.id, data: { name: name.trim(), colour } }, { onSuccess: onClose });
+      updateList({ id: editingList.id, data: { name: name.trim(), colour } }, {
+        onSuccess: () => { toast.success("List updated"); onClose(); },
+      });
     } else {
-      createList({ name: name.trim(), colour, order: nextOrder }, { onSuccess: onClose });
+      createList({ name: name.trim(), colour, order: nextOrder }, {
+        onSuccess: () => { toast.success("List created"); onClose(); },
+      });
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-xl border-none bg-background p-0 shadow-2xl">
+      <DialogContent showCloseButton={false} className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-xl border-none bg-background p-0 shadow-2xl">
         <DialogTitle className="sr-only">
           {editingList ? "Edit list" : "Create a list"}
         </DialogTitle>

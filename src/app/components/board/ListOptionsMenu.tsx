@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUpdateList, useDeleteList } from "@/app/hooks/useLists";
+import { toast } from "sonner";
 import type { List } from "@/lib/types";
 
 type Props = {
@@ -21,12 +22,16 @@ export default function ListOptionsMenu({ list, onEditList }: Props) {
   const { mutate: deleteList } = useDeleteList();
 
   function archiveAll() {
-    updateList({ id: list.id, data: { archiveAllTasks: true } });
+    updateList({ id: list.id, data: { archiveAllTasks: true } }, {
+      onSuccess: () => toast.success("All tasks archived"),
+    });
   }
 
   function handleDelete() {
     if (confirm(`Delete "${list.name}" and all its tasks? This cannot be undone.`)) {
-      deleteList(list.id);
+      deleteList(list.id, {
+        onSuccess: () => toast.success("List deleted"),
+      });
     }
   }
 
