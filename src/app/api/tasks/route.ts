@@ -61,6 +61,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "List not found" }, { status: 404 });
     }
 
+    // Place new task after all existing active (non-completed) tasks in the list
+    const resolvedOrder = order ?? await (async () => {
+      const agg = await prisma.task.aggregate({
+        where: { listId, completed: false, archived: false },
+        _max: { order: true },
+      });
+      return (agg._max.order ?? -1) + 1;
+    })();
+
     const task = await prisma.task.create({
       data: {
         listId,
@@ -68,7 +77,7 @@ export async function POST(request: NextRequest) {
         description,
         estimatedHours,
         dueDate: dueDate ? new Date(dueDate) : undefined,
-        order: order ?? 0,
+        order: resolvedOrder,
         priority: priority ?? "LOW",
         urgent: urgent ?? false,
         important: important ?? false,

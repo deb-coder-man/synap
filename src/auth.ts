@@ -10,6 +10,10 @@ import { authConfig } from "./auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  // trustHost allows NextAuth to infer the base URL from the request's
+  // X-Forwarded-Host header (set automatically by Vercel), so magic link
+  // emails use the correct production domain instead of NEXTAUTH_URL.
+  trustHost: true,
   adapter: PrismaAdapter(prisma),
 
   providers: [

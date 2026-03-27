@@ -19,6 +19,12 @@ export const PREMADE_THEMES: Theme[] = [
   { name: "Forest",   bg: "#1a2e1e", text: "#d4edda", font: "Delius"  },
   { name: "Lavender", bg: "#f3f0ff", text: "#2d1b69", font: "Inter"   },
   { name: "Noir",     bg: "#0d0d0d", text: "#e8e8e8", font: "Delius"  },
+  { name: "Sunset",   bg: "#fff5eb", text: "#7c2d12", font: "Delius"  },
+  { name: "Rose",     bg: "#fff1f2", text: "#881337", font: "Inter"   },
+  { name: "Slate",    bg: "#f8fafc", text: "#0f172a", font: "Inter"   },
+  { name: "Coffee",   bg: "#2c1810", text: "#f5e6d3", font: "Delius"  },
+  { name: "Arctic",   bg: "#e0f2fe", text: "#0c4a6e", font: "Inter"   },
+  { name: "Mocha",    bg: "#3c2415", text: "#e8cba0", font: "Georgia" },
 ];
 
 export const FONT_OPTIONS = [

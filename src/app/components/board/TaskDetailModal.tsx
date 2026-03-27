@@ -30,7 +30,6 @@ export default function TaskDetailModal({ task, listName, open, onClose }: Props
   const [description, setDesc]  = useState("");
   const [priority, setPriority] = useState<Priority>("LOW");
   const [dueDate, setDueDate]   = useState("");
-  const [dueTime, setDueTime]   = useState("");
   const [estHours, setEstHours] = useState("");
 
   const { mutate: updateTask } = useUpdateTask();
@@ -41,12 +40,9 @@ export default function TaskDetailModal({ task, listName, open, onClose }: Props
       setDesc(task.description ?? "");
       setPriority(task.priority);
       if (task.dueDate) {
-        const iso = new Date(task.dueDate).toISOString();
-        setDueDate(iso.slice(0, 10));
-        setDueTime(iso.slice(11, 16));
+        setDueDate(new Date(task.dueDate).toISOString().slice(0, 10));
       } else {
         setDueDate("");
-        setDueTime("");
       }
       setEstHours(task.estimatedHours?.toString() ?? "");
     }
@@ -54,7 +50,7 @@ export default function TaskDetailModal({ task, listName, open, onClose }: Props
 
   function buildDueDate(): string | undefined {
     if (!dueDate) return undefined;
-    return dueTime ? `${dueDate}T${dueTime}` : `${dueDate}T00:00`;
+    return `${dueDate}T00:00`;
   }
 
   function save(patch: Partial<{ title: string; description: string; priority: Priority; dueDate: string; estimatedHours: number }>) {
@@ -144,17 +140,6 @@ export default function TaskDetailModal({ task, listName, open, onClose }: Props
                 />
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label className="font-[family-name:var(--font-delius)] text-xs text-foreground/50">Time</label>
-                <input
-                  type="time"
-                  value={dueTime}
-                  disabled={!dueDate}
-                  onChange={(e) => setDueTime(e.target.value)}
-                  onBlur={() => dueDate && save({ dueDate: buildDueDate() })}
-                  className="border-b border-foreground/20 bg-transparent font-[family-name:var(--font-delius)] text-foreground outline-none transition-colors focus:border-foreground/60 disabled:opacity-30"
-                />
-              </div>
             </div>
 
             <div className="h-px bg-foreground/10" />

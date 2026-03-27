@@ -5,6 +5,7 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  TouchSensor,
   MeasuringStrategy,
   useSensor,
   useSensors,
@@ -42,7 +43,10 @@ export default function BoardPage() {
   const [viewMode, setViewMode]             = useState<"grid" | "list">("grid");
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    // TouchSensor with a delay so quick swipes trigger native CSS snap scrolling
+    // rather than starting a drag. Users can still drag via a 250ms long-press.
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
   );
 
   const listIds = lists.map((l) => l.id);
@@ -66,24 +70,45 @@ export default function BoardPage() {
     const activeData = active.data.current;
     const overData   = over.data.current;
 
-    // Task dragged over a different list column — optimistically move it
-    if (activeData?.type === "task" && overData?.type === "list") {
-      const task = activeData.task as Task;
-      if (task.listId !== over.id) {
-        queryClient.setQueryData(listKeys.all, (old: ListWithTasks[]) =>
-          old?.map((list) => {
-            if (list.id === task.listId) {
-              return { ...list, tasks: list.tasks.filter((t: Task) => t.id !== task.id) };
-            }
-            if (list.id === over.id) {
-              return { ...list, tasks: [...list.tasks, { ...task, listId: String(over.id) }] };
-            }
-            return list;
-          })
-        );
-        setActiveTask((t) => (t ? { ...t, listId: String(over.id) } : t));
-      }
-    }
+    if (activeData?.type !== "task") return;
+
+    const task = activeData.task as Task;
+
+    // Determine the target list whether we're hovering over the list background
+    // or over an existing task card inside that list.
+    const targetListId =
+      overData?.type === "list"
+        ? String(over.id)
+        : overData?.type === "task"
+          ? (overData.task as Task).listId
+          : null;
+
+    if (!targetListId) return;
+
+    queryClient.setQueryData(listKeys.all, (old: ListWithTasks[]) => {
+      if (!old) return old;
+
+      // If the task is already in the target list, do nothing — avoids
+      // double-insertion when the cursor moves between tasks in the same list.
+      const alreadyThere = old
+        .find((l) => l.id === targetListId)
+        ?.tasks.some((t) => t.id === task.id);
+      if (alreadyThere) return old;
+
+      return old.map((list) => {
+        // Remove the task from whichever list currently holds it
+        if (list.tasks.some((t) => t.id === task.id)) {
+          return { ...list, tasks: list.tasks.filter((t: Task) => t.id !== task.id) };
+        }
+        // Append to the target list so the ghost card appears there
+        if (list.id === targetListId) {
+          return { ...list, tasks: [...list.tasks, { ...task, listId: targetListId }] };
+        }
+        return list;
+      });
+    });
+
+    setActiveTask((t) => (t ? { ...t, listId: targetListId } : t));
   }
 
   function onDragEnd(event: DragEndEvent) {
@@ -198,7 +223,7 @@ export default function BoardPage() {
       </div>
 
       {viewMode === "grid" ? (
-        <div className="scrollbar-themed flex min-h-[calc(100vh-150px)] items-start gap-8 overflow-x-auto px-6 pb-8 snap-x snap-mandatory scroll-smooth sm:gap-[25px]">
+        <div className="scrollbar-themed flex min-h-[calc(100vh-150px)] items-start gap-[1.5rem] overflow-x-auto px-6 pb-8 snap-x snap-mandatory scroll-smooth sm:gap-[25px] sm:px-6">
           <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
             {lists.map((list, i) => (
               <ListColumn key={list.id} list={list} order={i} />
@@ -208,7 +233,7 @@ export default function BoardPage() {
           {/* Add a List */}
           <button
             onClick={() => setCreateListOpen(true)}
-            className="flex w-[calc(100vw-3rem)] shrink-0 snap-center items-center justify-between rounded-[15px] bg-foreground px-[23px] py-[19px] font-[family-name:var(--font-delius)] text-[20px] text-background transition-all hover:opacity-80 active:scale-[0.97] sm:w-[328px] sm:snap-start"
+            className="flex w-[calc(100vw-3rem)] shrink-0 snap-center snap-always items-center justify-between rounded-[10px] bg-foreground px-[23px] py-[19px] font-[family-name:var(--font-delius)] text-[20px] text-background transition-all hover:opacity-80 active:scale-[0.97] sm:w-[328px] sm:rounded-[15px] sm:snap-start"
           >
             <span>Add a List</span>
             <Plus size={28} />

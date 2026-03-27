@@ -21,7 +21,6 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { useTasks, useUpdateTask } from "@/app/hooks/useTasks";
 import { useActionStore } from "@/app/stores/actionStore";
-import { prioritiseTasks } from "@/lib/api/prioritisation";
 import ActionTaskCard from "@/app/components/action/ActionTaskCard";
 import PomodoroTimer from "@/app/components/action/PomodoroTimer";
 import TaskDetailModal from "@/app/components/board/TaskDetailModal";
@@ -36,14 +35,12 @@ export default function ActionPage() {
     skippedIds,
     generated,
     hours,
-    deepWork,
     setOrderedTaskIds,
     removeTaskId,
     reorderTaskIds,
     addSkippedId,
     setGenerated,
     setHours,
-    setDeepWork,
   } = useActionStore();
 
   const [generating, setGenerating] = useState(false);
@@ -62,44 +59,55 @@ export default function ActionPage() {
   const skippedSet = new Set(skippedIds);
   const visibleTasks = orderedTasks.filter((t) => !skippedSet.has(t.id));
 
-  async function handleGenerate() {
+  function handleGenerate() {
     if (activeTasks.length === 0) return;
     setGenerating(true);
-    try {
-      const slimTasks = activeTasks.map(({ id, title, priority, estimatedHours, dueDate }) => ({
-        id, title, priority, estimatedHours, dueDate,
-      }));
-      const orderedIds = await prioritiseTasks(hours, deepWork, slimTasks as typeof activeTasks);
 
-      // Build ordered list from returned IDs, append any missing as fallback
-      const ordered: string[] = [];
-      for (const id of orderedIds) {
-        if (taskMap.has(id)) ordered.push(id);
-      }
-      for (const t of activeTasks) {
-        if (!ordered.includes(t.id)) ordered.push(t.id);
-      }
-      setOrderedTaskIds(ordered);
-      setGenerated(true);
-      toast.success("Work plan generated");
-    } catch (err) {
-      console.error("Generate error:", err);
-      // Fallback: sort by priority then due date
-      const PRIO = { HIGH: 0, MEDIUM: 1, LOW: 2 } as const;
-      const fallback = [...activeTasks]
-        .sort((a, b) => {
-          if (PRIO[a.priority] !== PRIO[b.priority]) return PRIO[a.priority] - PRIO[b.priority];
-          if (a.dueDate && b.dueDate)
-            return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-          return 0;
-        })
-        .map((t) => t.id);
-      setOrderedTaskIds(fallback);
-      setGenerated(true);
-      toast.success("Work plan generated");
-    } finally {
-      setGenerating(false);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const PRIORITY_WEIGHT: Record<string, number> = { HIGH: 6, MEDIUM: 3, LOW: 1 };
+
+    function urgencyWeight(dueDate: string | null): number {
+      const due = dueDate
+        ? new Date(dueDate)
+        : new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000); // assume 5 days if missing
+      due.setHours(0, 0, 0, 0);
+      const days = Math.max(0, Math.ceil((due.getTime() - today.getTime()) / 86_400_000));
+      if (days <= 1)  return 5;
+      if (days <= 3)  return 4;
+      if (days <= 7)  return 3;
+      if (days <= 14) return 2;
+      if (days <= 30) return 1;
+      return 0;
     }
+
+    // Score each task, then fit within available hours (highest score first)
+    const scored = activeTasks
+      .map((t) => ({
+        id: t.id,
+        score: PRIORITY_WEIGHT[t.priority] + urgencyWeight(t.dueDate ?? null),
+        dueMs: t.dueDate ? new Date(t.dueDate).getTime() : Infinity,
+        hours: t.estimatedHours ?? 0.5,
+      }))
+      .sort((a, b) => b.score - a.score || a.dueMs - b.dueMs);
+
+    let remaining = hours;
+    const ordered: string[] = [];
+    const overflow: string[] = [];
+    for (const t of scored) {
+      if (t.hours <= remaining) {
+        ordered.push(t.id);
+        remaining -= t.hours;
+      } else {
+        overflow.push(t.id);
+      }
+    }
+
+    setOrderedTaskIds([...ordered, ...overflow]);
+    setGenerated(true);
+    setGenerating(false);
+    toast.success("Work plan generated");
   }
 
   function handleComplete(id: string) {
@@ -163,23 +171,6 @@ export default function ActionPage() {
               className="w-24 rounded-lg border border-foreground/15 bg-transparent px-3 py-2 font-[family-name:var(--font-delius)] text-sm text-foreground outline-none focus:border-foreground/40"
             />
           </div>
-
-          {/* Deep work toggle */}
-          <label className="flex cursor-pointer items-center gap-2 pb-2 font-[family-name:var(--font-delius)] text-sm text-foreground/70">
-            <div
-              onClick={() => setDeepWork(!deepWork)}
-              className={`relative h-5 w-9 rounded-full transition-colors ${
-                deepWork ? "bg-foreground" : "bg-foreground/20"
-              }`}
-            >
-              <span
-                className={`absolute top-0.5 h-4 w-4 rounded-full bg-background shadow transition-transform ${
-                  deepWork ? "translate-x-4" : "translate-x-0.5"
-                }`}
-              />
-            </div>
-            Deep work
-          </label>
 
           {/* Generate button */}
           <button
