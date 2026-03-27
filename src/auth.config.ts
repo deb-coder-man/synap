@@ -6,6 +6,30 @@ export const authConfig: NextAuthConfig = {
 
   providers: [], // providers with Node.js deps are added in auth.ts
 
+  // trustHost: true (set in auth.ts) causes NextAuth v5 to use __Host-prefixed
+  // cookies, which require HTTPS and break on http://localhost. Override the PKCE
+  // and state cookies to use plain names that work in both dev and production.
+  cookies: {
+    pkceCodeVerifier: {
+      name: "next-auth.pkce.code_verifier",
+      options: {
+        httpOnly: true,
+        sameSite: "lax" as const,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    state: {
+      name: "next-auth.state",
+      options: {
+        httpOnly: true,
+        sameSite: "lax" as const,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
+
   callbacks: {
     jwt({ token, user }) {
       if (user) token.id = user.id!;

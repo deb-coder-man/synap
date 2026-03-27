@@ -9,7 +9,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import TaskCard from "./TaskCard";
-import CreateTaskModal from "./CreateTaskModal";
+import InlineTaskCreator from "./InlineTaskCreator";
 import TaskDetailModal from "./TaskDetailModal";
 import ListOptionsMenu from "./ListOptionsMenu";
 import CreateListModal from "./CreateListModal";
@@ -21,9 +21,9 @@ type Props = {
 };
 
 export default function ListColumn({ list, order = 0 }: Props) {
-  const [taskModalOpen, setTaskModalOpen]     = useState(false);
-  const [editListOpen, setEditListOpen]       = useState(false);
-  const [selectedTask, setSelectedTask]       = useState<Task | null>(null);
+  const [showInline, setShowInline]       = useState(false);
+  const [editListOpen, setEditListOpen]   = useState(false);
+  const [selectedTask, setSelectedTask]   = useState<Task | null>(null);
 
   // Separate active and completed tasks for visual grouping
   const activeTasks    = list.tasks.filter((t) => !t.completed);
@@ -51,7 +51,7 @@ export default function ListColumn({ list, order = 0 }: Props) {
       <div
         ref={setNodeRef}
         style={{ ...columnStyle, backgroundColor: list.colour, '--col-stagger': `${order * 60}ms` } as React.CSSProperties}
-        className="animate-board-column-in flex w-[calc(100vw-3rem)] shrink-0 snap-center flex-col gap-[13px] rounded-[10px] px-[15px] py-[17px] sm:w-[300px] sm:snap-start"
+        className="animate-board-column-in flex w-[calc(100vw-3rem)] shrink-0 snap-center snap-always flex-col gap-[13px] rounded-[10px] px-[15px] py-[17px] sm:w-[300px] sm:snap-start"
       >
         {/* Column header — drag handle */}
         <div
@@ -82,24 +82,21 @@ export default function ListColumn({ list, order = 0 }: Props) {
           )}
         </SortableContext>
 
-        {/* Add a card button */}
-        <button
-          onClick={() => setTaskModalOpen(true)}
-          className="mt-1 flex items-center gap-2 rounded-[10px] px-[10px] py-[8px] font-[family-name:var(--font-delius)] text-[16px] text-background/70 transition-all hover:bg-background/15 hover:text-background"
-        >
-          <span>Add a card</span>
-          <Plus size={24} />
-        </button>
+        {/* Inline task creator / Add button */}
+        {showInline ? (
+          <InlineTaskCreator listId={list.id} onCancel={() => setShowInline(false)} />
+        ) : (
+          <button
+            onClick={() => setShowInline(true)}
+            className="mt-1 flex items-center gap-2 rounded-[10px] px-[10px] py-[8px] font-[family-name:var(--font-delius)] text-[16px] text-background/70 transition-all hover:bg-background/15 hover:text-background"
+          >
+            <span>Add a card</span>
+            <Plus size={24} />
+          </button>
+        )}
       </div>
 
       {/* Modals */}
-      <CreateTaskModal
-        listId={list.id}
-        listName={list.name}
-        open={taskModalOpen}
-        onClose={() => setTaskModalOpen(false)}
-      />
-
       <CreateListModal
         open={editListOpen}
         onClose={() => setEditListOpen(false)}

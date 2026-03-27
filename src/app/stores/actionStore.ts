@@ -9,7 +9,6 @@ type ActionStore = {
   skippedIds: string[];
   generated: boolean;
   hours: number;
-  deepWork: boolean;
 
   setOrderedTaskIds: (ids: string[]) => void;
   removeTaskId: (id: string) => void;
@@ -17,7 +16,6 @@ type ActionStore = {
   addSkippedId: (id: string) => void;
   setGenerated: (v: boolean) => void;
   setHours: (h: number) => void;
-  setDeepWork: (d: boolean) => void;
 
   // ─── Pomodoro ─────────────────────────────────────────────────────────────
   pomodoroMode: PomodoroMode;
@@ -41,7 +39,6 @@ export const useActionStore = create<ActionStore>()(
       skippedIds: [],
       generated: false,
       hours: 2,
-      deepWork: false,
 
       setOrderedTaskIds: (ids) => set({ orderedTaskIds: ids }),
       removeTaskId: (id) =>
@@ -51,7 +48,6 @@ export const useActionStore = create<ActionStore>()(
         set((s) => ({ skippedIds: [...s.skippedIds, id] })),
       setGenerated: (v) => set({ generated: v }),
       setHours: (h) => set({ hours: h }),
-      setDeepWork: (d) => set({ deepWork: d }),
 
       // ─── Pomodoro defaults ───────────────────────────────────────────────
       pomodoroMode: "work",
@@ -74,7 +70,6 @@ export const useActionStore = create<ActionStore>()(
         skippedIds: s.skippedIds,
         generated: s.generated,
         hours: s.hours,
-        deepWork: s.deepWork,
         pomodoroMode: s.pomodoroMode,
         // pomodoroRemaining intentionally excluded — writing every second causes 1500+ localStorage writes per session
         pomodoroTotal: s.pomodoroTotal,

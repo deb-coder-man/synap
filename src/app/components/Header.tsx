@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings, Palette } from "lucide-react";
+import { Settings, Palette, MessageSquare } from "lucide-react";
 import SettingsPanel from "@/app/components/settings/SettingsPanel";
 import ThemePanel from "@/app/components/themes/ThemePanel";
+import FeedbackModal from "@/app/components/FeedbackModal";
 import { useSettings } from "@/app/hooks/useSettings";
 import { useThemeStore } from "@/app/stores/themeStore";
-import { ClipboardList, Layers, Zap, Archive } from "lucide-react";
+import { ClipboardList, Zap, Archive } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -22,10 +23,9 @@ export default function Header() {
   const queryClient = useQueryClient();
 
   const NAV_ITEMS: { href: string; label: string; Icon: LucideIcon }[] = [
-    { href: "/board",   label: "Tasks",          Icon: ClipboardList },
-    { href: "/matrix",  label: "Prioritisation", Icon: Layers        },
-    { href: "/action",  label: "Action List",    Icon: Zap           },
-    { href: "/archive", label: "Archive",        Icon: Archive       },
+    { href: "/board",   label: "Tasks",       Icon: ClipboardList },
+    { href: "/action",  label: "Action List", Icon: Zap           },
+    { href: "/archive", label: "Archive",     Icon: Archive       },
   ];
 
   function prefetch(href: string) {
@@ -40,8 +40,9 @@ export default function Header() {
     }
   }
 
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [themeOpen,    setThemeOpen]    = useState(false);
+  const [settingsOpen,  setSettingsOpen]  = useState(false);
+  const [themeOpen,     setThemeOpen]     = useState(false);
+  const [feedbackOpen,  setFeedbackOpen]  = useState(false);
 
   const { data: settings } = useSettings();
   const { setTheme }       = useThemeStore();
@@ -59,19 +60,24 @@ export default function Header() {
         <span className="font-delius text-xl font-bold text-foreground">Synaptex</span>
         <div className="flex items-center gap-1">
           <button
-            onClick={() => { setThemeOpen(true); setSettingsOpen(false); }}
+            onClick={() => { setFeedbackOpen(true); setThemeOpen(false); setSettingsOpen(false); }}
+            className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-foreground/50 transition-colors hover:text-foreground cursor-pointer"
+            title="Feedback"
+          >
+            <MessageSquare size={20} />
+          </button>
+          <button
+            onClick={() => { setThemeOpen(true); setSettingsOpen(false); setFeedbackOpen(false); }}
             className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-foreground/50 transition-colors hover:text-foreground cursor-pointer"
             title="Theme"
           >
-         
             <Palette size={20} />
           </button>
           <button
-            onClick={() => { setSettingsOpen(true); setThemeOpen(false); }}
+            onClick={() => { setSettingsOpen(true); setThemeOpen(false); setFeedbackOpen(false); }}
             className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-foreground/50 transition-colors hover:text-foreground cursor-pointer"
             title="Settings"
           >
-          
             <Settings size={20} />
           </button>
         </div>
@@ -136,14 +142,21 @@ export default function Header() {
 
           {/* Settings icons */}
           <button
-            onClick={() => { setThemeOpen(true); setSettingsOpen(false); }}
+            onClick={() => { setFeedbackOpen(true); setThemeOpen(false); setSettingsOpen(false); }}
+            className="flex items-center gap-2 px-4 py-3 rounded-t-[20px] border-2 -mb-[2px] font-delius text-sm text-foreground/60 border-transparent transition-colors hover:border-foreground/20 hover:text-foreground cursor-pointer"
+            title="Feedback"
+          >
+            <MessageSquare size={16} />
+          </button>
+          <button
+            onClick={() => { setThemeOpen(true); setSettingsOpen(false); setFeedbackOpen(false); }}
             className="flex items-center gap-2 px-4 py-3 rounded-t-[20px] border-2 -mb-[2px] font-delius text-sm text-foreground/60 border-transparent transition-colors hover:border-foreground/20 hover:text-foreground cursor-pointer"
             title="Theme"
           >
             <Palette size={16} />
           </button>
           <button
-            onClick={() => { setSettingsOpen(true); setThemeOpen(false); }}
+            onClick={() => { setSettingsOpen(true); setThemeOpen(false); setFeedbackOpen(false); }}
             className="flex items-center gap-2 px-4 py-3 rounded-t-[20px] border-2 -mb-[2px] font-delius text-sm text-foreground/60 border-transparent transition-colors hover:border-foreground/20 hover:text-foreground cursor-pointer"
             title="Settings"
           >
@@ -152,8 +165,9 @@ export default function Header() {
         </div>
       </header>
 
-      <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
-      <ThemePanel    open={themeOpen}    onClose={() => setThemeOpen(false)} />
+      <SettingsPanel  open={settingsOpen}  onClose={() => setSettingsOpen(false)} />
+      <ThemePanel     open={themeOpen}     onClose={() => setThemeOpen(false)} />
+      <FeedbackModal  open={feedbackOpen}  onClose={() => setFeedbackOpen(false)} />
     </>
   );
 }
