@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -9,10 +9,11 @@ import {
   MeasuringStrategy,
   useSensor,
   useSensors,
-  closestCorners,
+  closestCenter,
   type DragStartEvent,
   type DragOverEvent,
   type DragEndEvent,
+  type Modifier,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -37,6 +38,15 @@ export default function BoardPage() {
 
   const queryClient = useQueryClient();
 
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const dragStartScrollLeft = useRef(0);
+
+  const scrollOffsetModifier = useCallback<Modifier>(({ transform }) => {
+    const scrollDelta =
+      (scrollContainerRef.current?.scrollLeft ?? 0) - dragStartScrollLeft.current;
+    return { ...transform, x: transform.x - scrollDelta };
+  }, []);
+
   const [createListOpen, setCreateListOpen] = useState(false);
   const [activeList, setActiveList]         = useState<ListWithTasks | null>(null);
   const [activeTask, setActiveTask]         = useState<Task | null>(null);
@@ -54,6 +64,7 @@ export default function BoardPage() {
   // ─── Drag handlers ─────────────────────────────────────────────────────────
 
   function onDragStart(event: DragStartEvent) {
+    dragStartScrollLeft.current = scrollContainerRef.current?.scrollLeft ?? 0;
     const data = event.active.data.current;
     if (data?.type === "list") {
       setActiveList(lists.find((l) => l.id === event.active.id) ?? null);
@@ -130,15 +141,11 @@ export default function BoardPage() {
       const oldIndex  = lists.findIndex((l) => l.id === active.id);
       const newIndex  = lists.findIndex((l) => l.id === over.id);
       const reordered = arrayMove(lists, oldIndex, newIndex);
-
       queryClient.setQueryData(
         listKeys.all,
         reordered.map((l, i) => ({ ...l, order: i }))
       );
-      const listUpdates = reordered
-        .map((list, i) => ({ id: list.id, order: i }))
-        .filter((_, i) => reordered[i].order !== i);
-      if (listUpdates.length > 0) reorderLists(listUpdates);
+      reorderLists(reordered.map((list, i) => ({ id: list.id, order: i })));
       return;
     }
 
@@ -190,7 +197,7 @@ export default function BoardPage() {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={closestCenter}
       measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
@@ -223,7 +230,12 @@ export default function BoardPage() {
       </div>
 
       {viewMode === "grid" ? (
-        <div className="scrollbar-themed flex min-h-[calc(100vh-150px)] items-start gap-[1.5rem] overflow-x-auto px-6 pb-8 snap-x snap-mandatory scroll-smooth sm:gap-[25px] sm:px-6">
+        <div
+          ref={scrollContainerRef}
+          className={`scrollbar-themed flex min-h-[calc(100vh-150px)] items-start gap-[1.5rem] overflow-x-auto px-6 pb-8 sm:gap-[25px] sm:px-6${
+            activeList ? "" : " snap-x snap-mandatory scroll-smooth"
+          }`}
+        >
           <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
             {lists.map((list, i) => (
               <ListColumn key={list.id} list={list} order={i} />
@@ -257,18 +269,42 @@ export default function BoardPage() {
       )}
 
       {/* Drag overlays — plain previews without useSortable to avoid double-transform offset */}
-      <DragOverlay dropAnimation={null}>
+      <DragOverlay dropAnimation={null} modifiers={[scrollOffsetModifier]}>
         {activeList && (
           <div
-            className="flex w-[calc(100vw-3rem)] shrink-0 flex-col gap-[13px] rounded-[10px] px-[15px] py-[17px] opacity-90 shadow-2xl sm:w-[300px]"
-            style={{ backgroundColor: activeList.colour }}
+            className="flex w-[calc(100vw-3rem)] shrink-0 flex-col gap-[10px] rounded-[10px] px-[15px] py-[17px] shadow-2xl sm:w-[300px]"
+            style={{ backgroundColor: activeList.colour, opacity: 0.95 }}
           >
+            {/* Header */}
             <p className="font-[family-name:var(--font-delius)] text-[20px] text-background">
               {activeList.name}
             </p>
-            <div className="text-background/50 font-[family-name:var(--font-delius)] text-sm">
-              {activeList.tasks.length} task{activeList.tasks.length !== 1 ? "s" : ""}
-            </div>
+
+            {/* Task previews (up to 3) */}
+            {activeList.tasks.filter((t) => !t.archived).slice(0, 3).map((task) => (
+              <div
+                key={task.id}
+                className="rounded-lg bg-background/90 px-[14px] py-[10px] shadow-sm"
+              >
+                <p className="font-[family-name:var(--font-delius)] text-xs text-foreground line-clamp-2 leading-snug">
+                  {task.title}
+                </p>
+              </div>
+            ))}
+
+            {/* Overflow count */}
+            {activeList.tasks.filter((t) => !t.archived).length > 3 && (
+              <p className="font-[family-name:var(--font-delius)] text-xs text-background/60">
+                +{activeList.tasks.filter((t) => !t.archived).length - 3} more
+              </p>
+            )}
+
+            {/* Empty state */}
+            {activeList.tasks.filter((t) => !t.archived).length === 0 && (
+              <p className="font-[family-name:var(--font-delius)] text-sm italic text-background/50">
+                No tasks
+              </p>
+            )}
           </div>
         )}
         {activeTask && (

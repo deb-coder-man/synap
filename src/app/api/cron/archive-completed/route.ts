@@ -1,6 +1,9 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const runtime = 'nodejs';
+export const maxDuration = 60;
+
 // Runs daily at 03:00 UTC via Vercel cron (vercel.json).
 // Archives every completed-but-not-yet-archived task across all users.
 //

@@ -73,13 +73,15 @@ export function applyThemeToDOM(bg: string, text: string, font: string) {
   root.style.setProperty("--background", bg);
   root.style.setProperty("--foreground", text);
 
-  // Map font name to actual CSS font-family value
-  const fontMap: Record<string, string> = {
-    Delius:     "var(--font-delius, 'Delius', cursive)",
-    Inter:      "var(--font-sans, 'Inter', sans-serif)",
+  const fontValues: Record<string, string> = {
+    Delius:     "'Delius', cursive",
+    Inter:      "'Inter', sans-serif",
     Georgia:    "Georgia, 'Times New Roman', serif",
     monospace:  "'Courier New', Courier, monospace",
   };
-  root.style.setProperty("--font-active", fontMap[font] ?? fontMap["Inter"]);
-  document.body.style.fontFamily = fontMap[font] ?? fontMap["Inter"];
+  const resolved = fontValues[font] ?? fontValues["Inter"];
+  root.style.setProperty("--font-delius", resolved);
+  root.style.setProperty("--font-sans",   resolved);
+  root.style.setProperty("--font-active", resolved);
+  document.body.style.fontFamily = resolved;
 }

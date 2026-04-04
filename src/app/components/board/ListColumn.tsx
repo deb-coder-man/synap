@@ -26,8 +26,8 @@ export default function ListColumn({ list, order = 0 }: Props) {
   const [selectedTask, setSelectedTask]   = useState<Task | null>(null);
 
   // Separate active and completed tasks for visual grouping
-  const activeTasks    = list.tasks.filter((t) => !t.completed);
-  const completedTasks = list.tasks.filter((t) => t.completed);
+  const activeTasks    = list.tasks.filter((t) => !t.completed && !t.archived);
+  const completedTasks = list.tasks.filter((t) => t.completed && !t.archived);
   const taskIds        = list.tasks.map((t) => t.id);
 
   // Make the column itself sortable (for dragging lists)

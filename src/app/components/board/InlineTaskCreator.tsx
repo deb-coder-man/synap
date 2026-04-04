@@ -46,21 +46,16 @@ export default function InlineTaskCreator({ listId, onCancel }: Props) {
   function handleSubmit() {
     if (!title.trim() || isPending) return;
 
-    createTask(
-      {
-        listId,
-        title: title.trim(),
-        priority,
-        estimatedHours: estHours ? parseFloat(estHours) : undefined,
-        dueDate: dueDate ? dueDate.toISOString() : undefined,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Task created");
-          onCancel();
-        },
-      }
-    );
+    createTask({
+      listId,
+      title: title.trim(),
+      priority,
+      estimatedHours: estHours ? parseFloat(estHours) : undefined,
+      dueDate: dueDate ? dueDate.toISOString() : undefined,
+    });
+
+    toast.success("Task created");
+    onCancel();
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {

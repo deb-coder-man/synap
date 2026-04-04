@@ -11,7 +11,7 @@ const LINKS = [
 export default function Footer({ className = "" }: { className?: string }) {
   return (
     <footer
-      className={` bottom-0 left-0 right-0 z-40 flex items-center justify-between border-t border-foreground/10 bg-background px-6 py-3 ${className}`}
+      className={`fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between border-t border-foreground/10 bg-background px-6 py-3 ${className}`}
     >
       {/* Left: brand + links */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
